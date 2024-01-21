@@ -39,7 +39,7 @@ const Posts = ({
     if (inView) {
       fetchNextPage();
     }
-  }, [inView]);
+  }, [inView, fetchNextPage]);
 
   // If no posts
   if (data?.pages[0].length === 0 && !hasNextPage) {
@@ -47,10 +47,10 @@ const Posts = ({
       <div className="mt-16 flex flex-col items-center">
         <Ghost className="h-32 w-32 animate-hover text-branding/20" />
         <h2 className="mt-4 text-2xl font-semibold">
-          It's a ghost town in here...
+          It&apos;s a ghost town in here...
         </h2>
         <div className="mt-1 text-muted-foreground">
-          Why don't you add the first post?
+          Why don&apos;t you add the first post?
         </div>
       </div>
     );

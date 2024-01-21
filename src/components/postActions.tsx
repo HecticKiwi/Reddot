@@ -134,7 +134,8 @@ const PostActions = ({
             <AlertDialogHeader>
               <AlertDialogTitle>Delete post?</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete your post? You can't undo this.
+                Are you sure you want to delete your post? You can&apos;t undo
+                this.
               </AlertDialogDescription>
             </AlertDialogHeader>
 

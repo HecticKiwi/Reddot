@@ -35,7 +35,7 @@ const AboutForm = ({ about }: { about: string | null }) => {
 
   useEffect(() => {
     form.reset({ about: about || undefined });
-  }, [about]);
+  }, [about, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await updateProfile(values);

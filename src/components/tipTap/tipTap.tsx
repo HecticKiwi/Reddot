@@ -27,6 +27,7 @@ export default function TipTap({
   limit?: number;
   className?: string;
 }) {
+  // eslint-disable-next-line
   const a = editor instanceof Editor ? editor : useEditor(editorConfig(editor));
 
   if (!a) {

@@ -45,10 +45,6 @@ const CommunitySearch = ({
     searchQuery: debouncedSearchQuery,
   });
 
-  if (!profile) {
-    return null;
-  }
-
   const handleSelectCommunity = (community: Community) => {
     if (onChange) {
       onChange(community.id);
