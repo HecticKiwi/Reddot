@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+
+  username String  @unique
+  about    String?
+  score    Int     @default(0)
+
+  clerkId           String @unique
+  clerkEmailAddress String
+  clerkImageUrl     String
+
+  posts                  Post[]
+  comments               Comment[]
+  votes                  Vote[]
+  communitiesAsModerator Community[] @relation("communityMods")
+  communitiesAsMember    Community[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Community {
+  id Int @id @default(autoincrement())
+
+  name        String  @unique
+  description String
+  imageUrl    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts      Post[]
+  moderators Profile[] @relation("communityMods")
+  members    Profile[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+
+  title    String
+  content  String
+  mediaUrl String?
+  removed  Boolean @default(false)
+
+  score Int @default(0)
+
+  authorId Int
+  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  communityId Int
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment Comment[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+
+  content String
+  score   Int     @default(0)
+  deleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId Int
+  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentCommentId Int?      @map("parentId")
+  parentComment   Comment?  @relation("ChildComments", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  childComments   Comment[] @relation("ChildComments")
+}
+
+model Vote {
+  id Int @id @default(autoincrement())
+
+  value Int
+
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  targetType VoteTarget
+  targetId   Int
+
+  @@unique([profileId, targetType, targetId])
+}
+
+enum VoteTarget {
+  POST
+  COMMENT
+}
