@@ -13,7 +13,7 @@ export type ConfigOptions = {
   onChange?: (content: string) => void;
 };
 
-export const editorConfig: ({
+export const createEditorConfig: ({
   readOnly,
   placeholder,
   limit,
@@ -57,9 +57,6 @@ export const editorConfig: ({
   },
   onUpdate: ({ editor }) => {
     onChange?.(editor.getHTML());
-    console.log(editor.isEmpty);
-    console.log(editor.state.doc.textContent);
-
     console.log(editor.getHTML());
   },
 });
@@ -67,44 +64,13 @@ export const editorConfig: ({
 const useTipTap = (config: ConfigOptions) => {
   const { placeholder, limit, content, onChange, readOnly } = config;
 
-  const editorConfig: Partial<EditorOptions> = {
+  const editorConfig = createEditorConfig({
+    readOnly,
+    placeholder,
+    limit,
+    onChange,
     content,
-    extensions: [
-      TextStyle.configure(),
-      StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-        },
-      }),
-      Placeholder.configure({
-        placeholder,
-      }),
-      CharacterCount.configure({
-        limit,
-      }),
-    ],
-    injectCSS: true,
-    editable: !readOnly,
-    editorProps: {
-      attributes: {
-        class: cn(
-          "prose prose-sm dark:prose-invert",
-          !readOnly && "max-w-full rounded-lg border p-8",
-        ),
-      },
-    },
-    onUpdate: ({ editor }) => {
-      console.log(editor.state.doc.textContent);
-
-      console.log(editor.getHTML());
-      onChange?.(editor.getHTML());
-    },
-  };
+  });
 
   const editor = useEditor(editorConfig);
 

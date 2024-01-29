@@ -1,22 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import CharacterCount from "@tiptap/extension-character-count";
-import Placeholder from "@tiptap/extension-placeholder";
-import TextStyle from "@tiptap/extension-text-style";
-import {
-  Editor,
-  EditorContent,
-  EditorOptions,
-  EditorProvider,
-  Extensions,
-  useCurrentEditor,
-  useEditor,
-} from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import MenuBar from "./menuBar";
+import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import CharacterCountIndicator from "./characterCountIndicator";
-import { ConfigOptions, editorConfig } from "./useTipTap";
+import MenuBar from "./menuBar";
+import { ConfigOptions, createEditorConfig } from "./useTipTap";
 
 export default function TipTap({
   editor,
@@ -27,8 +15,9 @@ export default function TipTap({
   limit?: number;
   className?: string;
 }) {
-  // eslint-disable-next-line
-  const a = editor instanceof Editor ? editor : useEditor(editorConfig(editor));
+  const a =
+    // eslint-disable-next-line
+    editor instanceof Editor ? editor : useEditor(createEditorConfig(editor));
 
   if (!a) {
     return null;

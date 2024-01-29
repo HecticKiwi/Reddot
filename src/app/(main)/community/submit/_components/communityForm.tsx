@@ -96,7 +96,7 @@ const CommunityForm = ({ community }: { community?: Community | null }) => {
           {community && `Edit the ${community.name} Community`}
           {!community && `Create Community`}
         </h1>
-        <div className="rounded-lg border bg-card p-8">
+        <div className="rounded-lg bg-card md:border md:p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField

@@ -50,7 +50,7 @@ const PostForm = ({
   return (
     <main>
       <div className="">
-        <div className="rounded-lg border bg-card p-8">
+        <div className="rounded-lg bg-card md:border md:p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField

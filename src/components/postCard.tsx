@@ -1,3 +1,5 @@
+"use client";
+
 import { getPostById } from "@/actions/post";
 import CircleImage from "@/components/circleImage";
 import CommunityLink from "@/components/communityLink";
@@ -13,34 +15,50 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import PostActions from "./postActions";
 import { getCurrentProfile } from "@/prisma/profile";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 const PostCard = ({
   profile,
-  post,
+  initialPost,
+  postId,
   inCommunity,
   preview,
 }: {
   profile: Awaited<ReturnType<typeof getCurrentProfile>>;
-  post: Awaited<ReturnType<typeof getPostById>>;
+  initialPost?: Awaited<ReturnType<typeof getPostById>>;
+  postId: number;
   inCommunity?: boolean;
   preview?: boolean;
 }) => {
-  const userVote = post.userScore;
-  console.log(post);
+  const { data: post } = useQuery({
+    queryKey: ["posts", postId],
+    queryFn: () => getPostById(postId),
+    initialData: initialPost,
+  });
 
+  if (!post) {
+    return null;
+  }
+
+  const userVote = post.userScore;
   return (
     <>
       <div className="flex overflow-hidden rounded-lg border">
         <aside className="flex flex-col items-center gap-1 bg-muted p-4 text-center">
           <VoteButtons
-            targetType="POST"
-            targetId={post.id}
-            userVote={userVote}
+            postId={post.id}
+            userVote={post.userScore}
             score={post.score}
           />
         </aside>
         <div className={cn("flex-grow p-4", preview && "")}>
-          <div className="mb-1 flex items-center text-xs text-slate-400">
+          <div className="mb-1 flex flex-wrap items-center text-xs text-slate-400">
             {(!inCommunity || !preview) && (
               <>
                 <CircleImage
@@ -52,17 +70,23 @@ const PostCard = ({
                   community={post.community}
                   className="font-semibold text-primary"
                 />
-                &nbsp;•&nbsp;
               </>
             )}
-            Posted by u/
-            <UserLink profile={post.author} />
-            &nbsp;
-            <TimeSinceNow date={post.createdAt} />
+            <span>
+              &nbsp;• Posted by u/
+              <UserLink profile={post.author} />
+              &nbsp;
+              <TimeSinceNow date={post.createdAt} />
+            </span>
           </div>
           {preview && (
-            <Link href={`/post/${post.id}`} className="block">
-              <h2 className="text-xl font-semibold">{post.title}</h2>
+            <Link
+              href={`/community/${post.communityId}/post/${post.id}`}
+              className="block"
+            >
+              <h2 className="text-xl font-semibold hover:text-branding active:text-branding">
+                {post.title}
+              </h2>
             </Link>
           )}
           {!preview && <h2 className="text-xl font-semibold">{post.title}</h2>}
@@ -83,10 +107,12 @@ const PostCard = ({
           {post.mediaUrl && <MediaPlayer url={post.mediaUrl} className="" />}
 
           {/* Content */}
-          <TipTap
-            className="mt-4"
-            editor={{ content: post.content, readOnly: true }}
-          />
+          {post.content && (
+            <TipTap
+              className="mt-4"
+              editor={{ content: post.content, readOnly: true }}
+            />
+          )}
 
           {/* Bottom actions */}
           <PostActions post={post} preview={preview} profile={profile} />

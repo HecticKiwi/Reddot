@@ -12,28 +12,31 @@ export default async function PostPage({
   params: { postId: string };
 }) {
   const profile = await getCurrentProfile();
-  const post = await getPostById(Number(params.postId));
 
-  if (!post) {
-    throw new Error("Post not found.");
-  }
+  const postId = Number(params.postId);
+
+  const post = await getPostById(postId);
 
   return (
-    <div className="mx-auto my-8 grid max-w-screen-lg grid-cols-[1fr_auto] gap-6 p-4">
-      <div>
+    <div className="mx-auto my-8 flex max-w-screen-lg gap-6 p-4">
+      <div className="flex-grow">
         {/* Post */}
-        <PostCard profile={profile} post={post} />
+        <PostCard profile={profile} postId={postId} />
 
         {/* Comment */}
-        <CommentForm postId={post.id} className="mt-8" />
+        <CommentForm postId={postId} className="mt-8" />
 
         <Separator className="my-8" />
 
         {/* Other comments */}
-        <Comments postId={post.id} />
+        <Comments postId={postId} />
       </div>
 
-      <CommunitySidebar communityId={post.communityId} inPost />
+      <CommunitySidebar
+        communityId={post.communityId}
+        inPost
+        className="hidden md:block"
+      />
     </div>
   );
 }

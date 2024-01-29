@@ -8,7 +8,6 @@ import { getCurrentProfile } from "@/prisma/profile";
 
 export async function getCurrentUser() {
   const user = await currentUser();
-  console.log(user);
 
   if (!user) {
     throw new Error("User not found");
@@ -23,7 +22,6 @@ export async function isUsernameAvailable(username: string) {
       username,
     },
   });
-  console.log(!profile);
 
   return !profile;
 }

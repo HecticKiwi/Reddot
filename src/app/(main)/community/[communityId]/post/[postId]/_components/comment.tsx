@@ -13,8 +13,15 @@ import { Fragment, useState } from "react";
 import CommentForm from "./commentForm";
 import UserLink from "@/components/userLink";
 import useTipTap from "@/components/tipTap/useTipTap";
+import TimeSinceNow from "@/components/timeSinceNow";
 
-const Comment = ({ comment }: { comment: PopulatedComment }) => {
+const Comment = ({
+  comment,
+  className,
+}: {
+  comment: PopulatedComment;
+  className?: string;
+}) => {
   const [expanded, setExpanded] = useState(true);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const editor = useTipTap({
@@ -24,7 +31,12 @@ const Comment = ({ comment }: { comment: PopulatedComment }) => {
 
   return (
     <>
-      <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+      <div
+        className={cn(
+          "grid grid-cols-[auto_1fr] items-center gap-2",
+          className,
+        )}
+      >
         {/* Avatar */}
         <div className="flex items-center gap-2">
           <Maximize2
@@ -47,9 +59,10 @@ const Comment = ({ comment }: { comment: PopulatedComment }) => {
           {comment.fromPostAuthor && (
             <span className="ml-1 text-xs font-bold text-branding/75">OP</span>
           )}
-          <span className="ml-2 text-xs text-muted-foreground">
-            {formatDistanceToNow(comment.createdAt)} ago
-          </span>
+          <TimeSinceNow
+            date={comment.createdAt}
+            className="ml-2 text-xs text-muted-foreground"
+          />
         </div>
 
         {/* Vertical Line */}
@@ -67,8 +80,8 @@ const Comment = ({ comment }: { comment: PopulatedComment }) => {
           {/* Comment actions */}
           <div className="mt-3 flex gap-2">
             <VoteButtons
-              targetType="COMMENT"
-              targetId={comment.id}
+              postId={comment.postId}
+              commentId={comment.id}
               userVote={comment.userScore}
               score={comment.score}
               orientation="horizontal"
@@ -95,7 +108,7 @@ const Comment = ({ comment }: { comment: PopulatedComment }) => {
             <div className="mt-8 space-y-4">
               {comment.childComments.map((childComment) => (
                 <Fragment key={"childComment" + childComment.id}>
-                  <Comment comment={childComment} />
+                  <Comment comment={childComment} className="-ml-3" />
                 </Fragment>
               ))}
             </div>

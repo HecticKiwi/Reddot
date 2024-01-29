@@ -16,9 +16,8 @@ export const useJoinOrLeaveCommunity = ({
     onSuccess: (data: boolean) => {
       const joined = data;
 
-      queryClient.invalidateQueries({ queryKey: ["profile", "own"] });
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "community", null],
+      queryClient.resetQueries({
+        queryKey: ["posts", "profile", null],
       });
 
       const action = joined ? "joined" : "left";

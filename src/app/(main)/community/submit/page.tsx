@@ -20,8 +20,6 @@ export default async function NewPostPage({
     const community = await getCommunityById(Number(communityId));
 
     if (!community) {
-      console.log("s");
-
       toast({
         title: "No community",
       });

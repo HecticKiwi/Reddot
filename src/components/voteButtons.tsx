@@ -2,55 +2,79 @@
 
 import { voteOnPostOrComment } from "@/actions/vote";
 import { cn } from "@/lib/utils";
-import { VoteTarget } from "@prisma/client";
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
 import { startTransition, useOptimistic } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useVote } from "@/hooks/post/useVote";
+import { getCurrentProfile } from "@/prisma/profile";
+import { produce } from "immer";
+import { getPostById } from "@/actions/post";
+import { toast } from "./ui/use-toast";
+import { getCommentsForPost } from "@/prisma/comment";
 
 const VoteButtons = ({
-  targetType,
-  targetId,
+  postId,
+  commentId,
   userVote,
   score,
   orientation,
 }: {
-  targetType: VoteTarget;
-  targetId: number;
+  postId: number;
+  commentId?: number;
   userVote: number;
   score: number;
   orientation?: "vertical" | "horizontal";
 }) => {
   const queryClient = useQueryClient();
 
-  const mutation = useVote({ targetType, targetId });
-  const [optimisticScore, changeOptimisticScore] = useOptimistic(
-    { userVote, score },
-    (state: { userVote: number; score: number }, change: number) => ({
-      userVote: state.userVote + change,
-      score: state.score + change,
-    }),
-  );
+  const mutation = useMutation({
+    mutationFn: (score: 0 | 1 | -1) =>
+      voteOnPostOrComment({ postId, commentId, score }),
+
+    onMutate(newVote) {
+      const voteChange = newVote - userVote;
+
+      // Vote on comment
+      if (commentId) {
+        queryClient.setQueryData(
+          ["comments", postId],
+          produce(
+            (oldComments: Awaited<ReturnType<typeof getCommentsForPost>>) => {
+              const comment = oldComments.find(
+                (comment) => comment.id === commentId,
+              );
+
+              if (comment) {
+                comment.score += voteChange;
+                comment.userScore = newVote;
+              }
+            },
+          ),
+        );
+
+        // Vote on post
+      } else if (!commentId) {
+        queryClient.setQueryData(
+          ["posts", postId],
+          produce((oldPost: Awaited<ReturnType<typeof getPostById>>) => {
+            oldPost.score += voteChange;
+            oldPost.userScore = newVote;
+          }),
+        );
+      }
+    },
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      toast({ title: "Something went wrong.", description: error.message });
+    },
+  });
 
   const vote = async (vote: 1 | -1) => {
-    const newVote = optimisticScore.userVote !== vote ? vote : 0;
-    const voteChange = newVote - optimisticScore.userVote;
+    const newVote = userVote !== vote ? vote : 0;
+    const voteChange = newVote - userVote;
 
-    startTransition(() => {
-      changeOptimisticScore(voteChange);
-    });
-
-    mutation.mutate(newVote);
-    // await voteOnPostOrComment({
-    //   targetType,
-    //   targetId,
-    //   score: newVote,
-    // });
-
-    // queryClient.invalidateQueries({ refetchType: "active" });
-    // await queryClient.invalidateQueries({
-    //   queryKey: ["posts"],
-    // });
+    await mutation.mutateAsync(newVote);
   };
 
   return (
@@ -70,13 +94,11 @@ const VoteButtons = ({
           <ChevronUpCircle
             className={cn(
               "text-muted-foreground",
-              optimisticScore.userVote === 1 && "text-branding",
+              userVote === 1 && "text-branding",
             )}
           />
         </button>
-        <span className="text-sm font-semibold leading-none">
-          {optimisticScore.score}
-        </span>
+        <span className="text-sm font-semibold leading-none">{score}</span>
         <button
           className="overflow-hidden rounded-full hover:bg-primary/20"
           onClick={() => {
@@ -86,7 +108,7 @@ const VoteButtons = ({
           <ChevronDownCircle
             className={cn(
               "text-muted-foreground",
-              optimisticScore.userVote === -1 && "text-branding",
+              userVote === -1 && "text-branding",
             )}
           />
         </button>

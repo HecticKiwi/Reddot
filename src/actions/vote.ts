@@ -3,18 +3,20 @@
 import prisma from "@/lib/prisma";
 import { getCurrentProfile } from "@/prisma/profile";
 import { Prisma, Vote, VoteTarget } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 
 export async function voteOnPostOrComment({
-  targetType,
-  targetId,
+  postId,
+  commentId,
   score,
 }: {
-  targetType: VoteTarget;
-  targetId: number;
+  postId: number;
+  commentId?: number;
   score: 1 | 0 | -1;
 }) {
   const profile = await getCurrentProfile();
+
+  const targetType: VoteTarget = commentId ? "COMMENT" : "POST";
+  const targetId = commentId ?? postId;
 
   const profileId_targetType_targetId = {
     profileId: profile.id,
@@ -98,7 +100,7 @@ export async function voteOnPostOrComment({
     });
   }
 
-  revalidatePath("/");
+  // revalidatePath("/");
 
   return authorId;
 }

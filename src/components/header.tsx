@@ -1,12 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { getCurrentProfile } from "@/prisma/profile";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import AddButton from "./addButton";
 import CommunitySearch from "./communitySearch";
 import { ThemeSwitcher } from "./themeSwitcher";
 import CustomUserButton from "./userButton";
-import AddButton from "./addButton";
-import { getCommunityById } from "@/prisma/community";
-import { getCurrentProfile } from "@/prisma/profile";
 
 const Header = async () => {
   const profile = await getCurrentProfile();
@@ -18,7 +15,9 @@ const Header = async () => {
           <Link href="/" className="group relative flex items-center gap-2">
             <span className="block h-7 w-7 rounded-full bg-branding"></span>
             <span className="absolute block h-7 w-7 rounded-full bg-branding group-hover:animate-ping"></span>
-            <span className="text-xl font-semibold">Reddot</span>
+            <span className="hidden text-xl font-semibold sm:inline">
+              Reddot
+            </span>
           </Link>
 
           <CommunitySearch profile={profile} community={null} link />

@@ -6,8 +6,6 @@ export async function POST(request: NextRequest) {
   try {
     const payload: WebhookEvent = await request.json();
     const userJson = payload.data as UserJSON;
-    console.log(userJson);
-    console.log(userJson.image_url);
 
     await prisma.profile.update({
       where: {

@@ -23,6 +23,9 @@ const JoinButton = ({
         variant={isMember ? "outline" : "default"}
         onClick={() => mutation.mutate()}
         disabled={mutation.isPending}
+        // variant={"ghost"}
+        size={"sm"}
+        className="h-auto gap-1 p-1 text-xs"
       >
         {isMember ? "Leave" : "Join"}
       </Button>

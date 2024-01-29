@@ -86,7 +86,7 @@ const PostActions = ({
           <span>Copy link</span>
         </Button>
 
-        {isModerating && (
+        {false && (
           <>
             <Button
               variant={"ghost"}
@@ -139,7 +139,7 @@ const PostActions = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
 
-            <AlertDialogFooter>
+            <AlertDialogFooter className="gap-2 sm:space-x-0">
               <Button
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}

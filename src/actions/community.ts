@@ -132,7 +132,7 @@ export async function getPosts({
 }) {
   const profile = await getCurrentProfile();
 
-  const take = 10;
+  const take = 5;
   const cursor = pageParam
     ? {
         id: pageParam,
@@ -162,6 +162,9 @@ export async function getPosts({
       where.communityId = id;
     }
   }
+  console.log(type);
+
+  console.log(id);
 
   const orderBy: Prisma.PostOrderByWithRelationInput =
     orderByType === "new"
@@ -188,7 +191,6 @@ export async function getPosts({
     cursor,
     take,
   });
-  console.log(posts);
 
   const results = await Promise.all(
     posts.map(async (post) => {

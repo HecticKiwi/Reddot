@@ -1,5 +1,6 @@
 import { getCommentsForPost } from "@/prisma/comment";
 import Comment from "./comment";
+import CommentsClient from "./commentsClient";
 
 const Comments = async ({ postId }: { postId: number }) => {
   const comments = await getCommentsForPost({ postId: Number(postId) });
@@ -10,15 +11,7 @@ const Comments = async ({ postId }: { postId: number }) => {
     );
   }
 
-  return (
-    <>
-      <div className="space-y-4">
-        {comments.map((comment) => (
-          <Comment key={comment.id} comment={comment} />
-        ))}
-      </div>
-    </>
-  );
+  return <CommentsClient postId={postId} initialComments={comments} />;
 };
 
 export default Comments;

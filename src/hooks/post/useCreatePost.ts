@@ -10,7 +10,7 @@ export const useCreatePost = () => {
   return useMutation({
     mutationFn: createPost,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.resetQueries({ queryKey: ["posts"] });
 
       toast({
         title: "Success",

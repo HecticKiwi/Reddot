@@ -13,7 +13,7 @@ import ToolbarButton from "./toolbarButton";
 export default function MenuBar({ editor }: { editor: Editor }) {
   return (
     <>
-      <div className="mb-2 space-x-2">
+      <div className="mb-2 flex flex-wrap gap-2">
         <ToolbarButton
           editor={editor}
           pressed={editor.isActive("heading", { level: 2 })}

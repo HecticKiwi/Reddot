@@ -23,7 +23,12 @@ export default async function NewPostPage({
 
       <div className="mt-8 grid grid-cols-[1fr_auto] gap-4">
         <PostForm profile={profile} community={community} />
-        {community && <CommunitySidebar communityId={Number(communityId)} />}
+        {community && (
+          <CommunitySidebar
+            communityId={Number(communityId)}
+            className="hidden md:block"
+          />
+        )}
       </div>
     </div>
   );

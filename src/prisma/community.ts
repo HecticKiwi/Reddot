@@ -29,9 +29,8 @@ export async function getPosts({
   orderBy: "new" | "top";
 }) {
   const profile = await getCurrentProfile();
-  console.log("a");
 
-  const take = 10;
+  const take = 4;
   const cursor = pageParam
     ? {
         id: pageParam,

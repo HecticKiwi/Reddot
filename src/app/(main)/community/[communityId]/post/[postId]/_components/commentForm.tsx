@@ -15,6 +15,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -31,6 +32,18 @@ const CommentForm = ({
   onSubmit?: () => void;
   className?: string;
 }) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: commentOnPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+    onError: (error) => {
+      toast({ title: "Something went wrong.", description: error.message });
+    },
+  });
+
   const editor = useTipTap({
     content: "",
     placeholder: "What are your thoughts?",
@@ -55,7 +68,7 @@ const CommentForm = ({
   });
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
-    await commentOnPost({
+    await mutation.mutateAsync({
       postId: Number(postId),
       parentCommentId,
       content: values.content,

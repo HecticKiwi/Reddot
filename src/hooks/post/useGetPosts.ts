@@ -6,10 +6,12 @@ export const useGetPosts = ({
   type,
   id,
   orderBy,
+  initialPosts,
 }: {
   type: "profile" | "community";
   id: number | null;
   orderBy: OrderBy;
+  initialPosts?: Awaited<ReturnType<typeof getPosts>>;
 }) => {
   return useInfiniteQuery({
     queryKey: ["posts", type, id, orderBy],
@@ -17,5 +19,9 @@ export const useGetPosts = ({
     getNextPageParam: (lastPage, pages) =>
       lastPage.length > 0 ? lastPage[lastPage.length - 1].id : undefined,
     initialPageParam: 0,
+    initialData: initialPosts && {
+      pages: [initialPosts],
+      pageParams: [0],
+    },
   });
 };

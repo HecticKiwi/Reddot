@@ -3,6 +3,7 @@ import { CakeSlice } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { cn } from "@/lib/utils";
 
 const CommunitySidebarView = ({
   id,
@@ -10,15 +11,17 @@ const CommunitySidebarView = ({
   description,
   createdAt,
   inPost,
+  className,
 }: {
   id?: number;
   header: string;
   description: string;
   createdAt?: Date;
   inPost?: boolean;
+  className?: string;
 }) => {
   return (
-    <aside className="w-72 self-start rounded-lg border p-4">
+    <aside className={cn("w-72 self-start rounded-lg border p-4", className)}>
       <h2 className="text-sm font-semibold text-muted-foreground">{header}</h2>
 
       <div className="mt-4 text-sm">
