@@ -1,9 +1,8 @@
-import { UserProfile } from "@clerk/nextjs";
-import AboutForm from "./_components/aboutForm";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Rocket } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { getCurrentProfile } from "@/prisma/profile";
+import { Rocket } from "lucide-react";
+import AboutForm from "./_components/aboutForm";
 
 const SettingsPage = async () => {
   const profile = await getCurrentProfile();
@@ -32,8 +31,6 @@ const SettingsPage = async () => {
               changes.
             </AlertDescription>
           </Alert>
-
-          <UserProfile />
         </div>
       </main>
     </>

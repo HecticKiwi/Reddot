@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Moon, MoonIcon, Sun, SunIcon, SunMoon } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export function ThemeSwitcher() {
   const { setTheme } = useTheme();

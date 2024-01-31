@@ -4,6 +4,8 @@ import AddButton from "./addButton";
 import CommunitySearch from "./communitySearch";
 import { ThemeSwitcher } from "./themeSwitcher";
 import CustomUserButton from "./userButton";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 const Header = async () => {
   const profile = await getCurrentProfile();

@@ -1,20 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { currentUser, redirectToSignIn } from "@clerk/nextjs";
 import { Prisma, Profile } from "@prisma/client";
 import { Score } from "./post";
-import { getCurrentProfile } from "@/prisma/profile";
-
-export async function getCurrentUser() {
-  const user = await currentUser();
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user;
-}
+import { getCurrentProfile, getCurrentUser } from "@/prisma/profile";
+import { getUser } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/actions";
+import { redirect } from "next/navigation";
 
 export async function isUsernameAvailable(username: string) {
   const profile = await prisma.profile.findUnique({
@@ -27,7 +20,7 @@ export async function isUsernameAvailable(username: string) {
 }
 
 export async function createProfile(username: string) {
-  const user = await currentUser();
+  const user = await getUser();
 
   if (!user) {
     throw new Error("Not signed in");
@@ -37,8 +30,8 @@ export async function createProfile(username: string) {
     data: {
       username,
       clerkId: user.id,
-      clerkEmailAddress: user.emailAddresses[0].emailAddress,
-      clerkImageUrl: user.imageUrl,
+      clerkEmailAddress: user.email ?? "",
+      clerkImageUrl: "",
     },
   });
 
@@ -57,3 +50,11 @@ export async function updateProfile(data: Partial<Profile>) {
 
   return profile;
 }
+
+export const signOut = async () => {
+  "use server";
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  await supabase.auth.signOut();
+  redirect("/login");
+};

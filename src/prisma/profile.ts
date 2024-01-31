@@ -1,19 +1,14 @@
-import {
-  auth,
-  clerkClient,
-  currentUser,
-  redirectToSignIn,
-} from "@clerk/nextjs";
 import prisma from "@/lib/prisma";
-import { User } from "@clerk/nextjs/server";
 import { Prisma, Profile } from "@prisma/client";
 import { cache } from "react";
+import { getUser } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export const initialProfile = async (): Promise<Profile | null> => {
-  const user = await currentUser();
+  const user = await getUser();
 
   if (!user) {
-    return redirectToSignIn();
+    return redirect("/login");
   }
 
   const profile = await prisma.profile.findUnique({
@@ -40,16 +35,16 @@ export async function getProfile(id: number) {
 }
 
 export const getCurrentProfile = cache(async () => {
-  const { userId } = await auth();
+  const { id } = await getUser();
 
-  if (!userId) {
+  if (!id) {
     throw new Error("Profile doesn't exist");
   }
 
   console.time("auth");
   const profile = await prisma.profile.findUnique({
     where: {
-      clerkId: userId,
+      clerkId: id,
     },
     include: {
       communitiesAsMember: true,
@@ -64,3 +59,13 @@ export const getCurrentProfile = cache(async () => {
 
   return profile;
 });
+
+export async function getCurrentUser() {
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+}

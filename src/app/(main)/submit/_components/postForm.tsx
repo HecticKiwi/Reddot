@@ -44,7 +44,7 @@ const PostForm = ({
   const onSubmit = async (values: postSchemaType) => {
     const postId = await mutation.mutateAsync(values);
 
-    router.push(`/post/${postId}`);
+    router.push(`/community/${values.communityId}/post/${postId}`);
   };
 
   return (

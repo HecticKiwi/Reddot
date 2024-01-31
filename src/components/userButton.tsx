@@ -1,5 +1,4 @@
 "use client";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,17 +7,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useClerk } from "@clerk/nextjs";
+import { createClient } from "@/lib/supabase/server";
 import { Profile } from "@prisma/client";
 import { LogOut, Settings, User } from "lucide-react";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import CircleImage from "./circleImage";
+import { signOut } from "@/actions/profile";
 
 const CustomUserButton = ({ profile }: { profile: Profile }) => {
-  const { signOut } = useClerk();
-  const router = useRouter();
-
   return (
     <>
       <DropdownMenu>
@@ -58,10 +56,7 @@ const CustomUserButton = ({ profile }: { profile: Profile }) => {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            className="gap-2"
-            onSelect={() => signOut(() => router.push("/sign-in"))}
-          >
+          <DropdownMenuItem className="gap-2" onSelect={() => signOut()}>
             <LogOut className="h-4 w-4" />
             Sign Out
           </DropdownMenuItem>
