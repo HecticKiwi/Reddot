@@ -100,7 +100,5 @@ export async function voteOnPostOrComment({
     });
   }
 
-  // revalidatePath("/");
-
   return authorId;
 }

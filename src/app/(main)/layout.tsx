@@ -4,6 +4,7 @@ import "@/css/clerk.css";
 import "@/css/globals.css";
 import "@/css/tiptap.css";
 import { initialProfile } from "@/prisma/profile";
+import { time } from "console";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

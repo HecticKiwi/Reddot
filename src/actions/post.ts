@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { getCurrentProfile } from "@/prisma/profile";
 import { postSchemaType } from "@/schemas/post";
 import { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 
 export type Score = 1 | 0 | -1;
 export type PostWithUserScore = Prisma.PromiseReturnType<typeof getPostById>;
@@ -25,7 +24,7 @@ export async function createPost(data: postSchemaType) {
 export async function getPostById(id: number) {
   const profile = await getCurrentProfile();
 
-  const post = await prisma.post.findUniqueOrThrow({
+  const postPromise = prisma.post.findUniqueOrThrow({
     where: {
       id,
     },
@@ -40,7 +39,7 @@ export async function getPostById(id: number) {
     },
   });
 
-  const userVote = await prisma.vote.findUnique({
+  const userVotePromise = prisma.vote.findUnique({
     where: {
       profileId_targetType_targetId: {
         profileId: profile.id,
@@ -50,6 +49,9 @@ export async function getPostById(id: number) {
     },
   });
 
+  const [post, userVote] = await Promise.all([postPromise, userVotePromise]);
+
+  console.timeEnd("some");
   return {
     ...post,
     userScore: (userVote?.value as Score) || 0,

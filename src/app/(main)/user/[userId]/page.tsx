@@ -14,6 +14,7 @@ const UserIdPage = async ({
   params: { userId: string };
   searchParams: { sort: OrderBy };
 }) => {
+  console.time("user");
   const profile = await getProfile(Number(params.userId));
 
   if (!profile) {
@@ -30,6 +31,8 @@ const UserIdPage = async ({
     id: null,
     orderBy,
   });
+
+  console.timeEnd("user");
 
   return (
     <>

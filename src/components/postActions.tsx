@@ -51,9 +51,6 @@ const PostActions = ({
   }
 
   const isOwner = post.authorId === profile.id;
-  const isModerating = profile.communitiesAsModerator.some(
-    (community) => community.id === post.communityId,
-  );
 
   return (
     <>
@@ -63,7 +60,9 @@ const PostActions = ({
           size={"sm"}
           className="h-auto gap-1 p-1 text-xs text-muted-foreground disabled:opacity-100"
           disabled={!preview}
-          onClick={() => router.push(`/post/${post.id}`)}
+          onClick={() =>
+            router.push(`/community/${post.communityId}/post/${post.id}`)
+          }
         >
           <MessageSquare className="h-4 w-4" />
           <span>{post._count.comment} comments</span>
@@ -108,15 +107,17 @@ const PostActions = ({
 
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className={cn("h-7 w-6 text-muted-foreground")}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            {isOwner && (
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  className={cn("h-7 w-6 text-muted-foreground")}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+            )}
 
             <DropdownMenuContent>
               {isOwner && (

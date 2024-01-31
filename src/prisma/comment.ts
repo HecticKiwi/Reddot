@@ -5,6 +5,8 @@ import { Score } from "@/actions/post";
 import { PopulatedComment } from "@/actions/comment";
 
 export async function getCommentsForPost({ postId }: { postId: number }) {
+  console.time("comments");
+
   const profile = await getCurrentProfile();
 
   const post = await prisma.post.findUniqueOrThrow({
@@ -24,6 +26,7 @@ export async function getCommentsForPost({ postId }: { postId: number }) {
       author: true,
     },
   });
+  console.timeEnd("comments");
 
   const parsedComments = await Promise.all(
     comments.map(async (comment) => {

@@ -1,14 +1,13 @@
 import { getPosts } from "@/actions/community";
 import CircleImage from "@/components/circleImage";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
+import SortTabs from "@/components/sortTabs";
 import { Button } from "@/components/ui/button";
 import { getCommunityById } from "@/prisma/community";
 import { getCurrentProfile } from "@/prisma/profile";
 import Link from "next/link";
 import JoinButton from "./_components/joinButton";
 import Posts, { OrderBy } from "./_components/posts";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SortTabs from "@/components/sortTabs";
 
 export default async function CommunityPage({
   params,
@@ -17,8 +16,28 @@ export default async function CommunityPage({
   params: { communityId: string };
   searchParams: { sort: OrderBy };
 }) {
-  const profile = await getCurrentProfile();
-  const community = await getCommunityById(Number(params.communityId));
+  const profilePromise = getCurrentProfile();
+
+  console.time("com");
+
+  const communityPromise = getCommunityById(Number(params.communityId));
+
+  const orderBy =
+    searchParams.sort === "new" || searchParams.sort === "top"
+      ? searchParams.sort
+      : "new";
+
+  const initialPostsPromise = getPosts({
+    type: "community",
+    id: Number(params.communityId),
+    orderBy,
+  });
+
+  const [profile, community, initialPosts] = await Promise.all([
+    profilePromise,
+    communityPromise,
+    initialPostsPromise,
+  ]);
 
   if (!community) {
     throw new Error("Post not found.");
@@ -28,16 +47,7 @@ export default async function CommunityPage({
     (moderator) => moderator.id === profile.id,
   );
 
-  const orderBy =
-    searchParams.sort === "new" || searchParams.sort === "top"
-      ? searchParams.sort
-      : "new";
-
-  const initialPosts = await getPosts({
-    type: "community",
-    id: Number(params.communityId),
-    orderBy,
-  });
+  console.timeEnd("com");
 
   return (
     <main className="mx-auto max-w-screen-lg p-2 sm:p-8">

@@ -66,16 +66,6 @@ const Posts = ({
     );
   }
 
-  const getSortHref = (sort: OrderBy) => {
-    const url = window.location.href;
-
-    const urlObject = new URL(url);
-    urlObject.searchParams.set("sort", sort);
-    console.log(urlObject.toString());
-
-    return urlObject.toString();
-  };
-
   return (
     <>
       <div>

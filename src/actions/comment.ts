@@ -1,10 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Prisma, Profile } from "@prisma/client";
-import { Score } from "./post";
-import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/prisma/profile";
+import { Prisma } from "@prisma/client";
+import { Score } from "./post";
 
 const commentWithAuthor = Prisma.validator<Prisma.CommentDefaultArgs>()({
   include: {
@@ -106,8 +105,6 @@ export async function commentOnPost({
       content,
     },
   });
-
-  revalidatePath("/");
 
   return comment;
 }

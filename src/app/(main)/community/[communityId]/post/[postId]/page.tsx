@@ -5,17 +5,21 @@ import { Separator } from "@/components/ui/separator";
 import { getCurrentProfile } from "@/prisma/profile";
 import CommentForm from "./_components/commentForm";
 import Comments from "./_components/comments";
+import { PostponedPathnameNormalizer } from "next/dist/server/future/normalizers/request/postponed";
 
 export default async function PostPage({
   params,
 }: {
   params: { postId: string };
 }) {
-  const profile = await getCurrentProfile();
+  console.time("post");
+  const profilePromise = getCurrentProfile();
 
   const postId = Number(params.postId);
 
-  const post = await getPostById(postId);
+  const postPromise = getPostById(postId);
+
+  const [profile, post] = await Promise.all([profilePromise, postPromise]);
 
   return (
     <div className="mx-auto my-8 flex max-w-screen-lg gap-6 p-4">

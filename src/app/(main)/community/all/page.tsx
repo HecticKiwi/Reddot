@@ -1,8 +1,8 @@
 import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
-import Posts, { OrderBy } from "../community/[communityId]/_components/posts";
 import { getCurrentProfile } from "@/prisma/profile";
 import { getPosts } from "@/actions/community";
 import SortTabs from "@/components/sortTabs";
+import Posts, { OrderBy } from "../[communityId]/_components/posts";
 
 const MainPage = async ({
   searchParams,

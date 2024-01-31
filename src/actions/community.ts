@@ -130,6 +130,7 @@ export async function getPosts({
   pageParam?: number;
   orderBy: "new" | "top";
 }) {
+  console.time("getPosts");
   const profile = await getCurrentProfile();
 
   const take = 5;
@@ -162,9 +163,6 @@ export async function getPosts({
       where.communityId = id;
     }
   }
-  console.log(type);
-
-  console.log(id);
 
   const orderBy: Prisma.PostOrderByWithRelationInput =
     orderByType === "new"

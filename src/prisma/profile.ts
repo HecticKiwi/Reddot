@@ -7,8 +7,9 @@ import {
 import prisma from "@/lib/prisma";
 import { User } from "@clerk/nextjs/server";
 import { Prisma, Profile } from "@prisma/client";
+import { cache } from "react";
 
-export async function initialProfile(): Promise<Profile | null> {
+export const initialProfile = async (): Promise<Profile | null> => {
   const user = await currentUser();
 
   if (!user) {
@@ -22,7 +23,7 @@ export async function initialProfile(): Promise<Profile | null> {
   });
 
   return profile;
-}
+};
 
 export async function getProfile(id: number) {
   const profile = await prisma.profile.findUniqueOrThrow({
@@ -38,13 +39,14 @@ export async function getProfile(id: number) {
   return profile;
 }
 
-export async function getCurrentProfile() {
+export const getCurrentProfile = cache(async () => {
   const { userId } = await auth();
 
   if (!userId) {
     throw new Error("Profile doesn't exist");
   }
 
+  console.time("auth");
   const profile = await prisma.profile.findUnique({
     where: {
       clerkId: userId,
@@ -54,10 +56,11 @@ export async function getCurrentProfile() {
       communitiesAsModerator: true,
     },
   });
+  console.timeEnd("auth");
 
   if (!profile) {
     throw new Error("Profile doesn't exist");
   }
 
   return profile;
-}
+});

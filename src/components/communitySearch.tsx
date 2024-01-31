@@ -7,6 +7,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -14,13 +15,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSearchCommunity } from "@/hooks/community/useSearchCommunity";
-import { Community, Profile } from "@prisma/client";
+import { getCurrentProfile } from "@/prisma/profile";
+import { Community } from "@prisma/client";
 import { useDebounce } from "@uidotdev/usehooks";
-import { ChevronDown, Loader } from "lucide-react";
+import { ChevronDown, Home, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CircleImage from "./circleImage";
-import { getCurrentProfile } from "@/prisma/profile";
 
 const CommunitySearch = ({
   profile,
@@ -45,13 +46,18 @@ const CommunitySearch = ({
     searchQuery: debouncedSearchQuery,
   });
 
-  const handleSelectCommunity = (community: Community) => {
-    if (onChange) {
+  const handleSelectCommunity = (community: Community | string) => {
+    if (onChange && typeof community !== "string") {
       onChange(community.id);
       setSelectedCommunity(community);
     } else if (link) {
-      router.push(`/community/${community.id}`);
+      if (typeof community === "string") {
+        router.push(`/community/${community}`);
+      } else {
+        router.push(`/community/${community.id}`);
+      }
     }
+
     setOpen(false);
   };
 
@@ -91,7 +97,7 @@ const CommunitySearch = ({
             />
 
             <CommandList>
-              {searchQuery ? (
+              {searchQuery && (
                 <CommandGroup>
                   {!isLoading && communities?.length === 0 && (
                     <div className="grid h-8 place-content-center text-center text-sm">
@@ -118,40 +124,64 @@ const CommunitySearch = ({
                     </CommandItem>
                   ))}
                 </CommandGroup>
-              ) : (
+              )}
+
+              {!searchQuery && (
                 <>
-                  <CommandGroup heading="MODERATING">
-                    {communitiesAsModerator.map((community) => (
-                      <CommandItem
-                        key={"community" + community.id}
-                        onSelect={() => handleSelectCommunity(community)}
-                        value={"moderatingCommunity" + community.id.toString()}
-                      >
-                        <CircleImage
-                          src={community.imageUrl}
-                          alt={`${community.name} Image`}
-                          className="mr-2 h-4 w-4"
-                        />
-                        {community.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                  <CommandGroup heading="YOUR COMMUNITIES">
-                    {communitiesAsMember.map((community) => (
-                      <CommandItem
-                        key={"yourCommunity" + community.id}
-                        onSelect={() => handleSelectCommunity(community)}
-                        value={"yourCommunity" + community.id.toString()}
-                      >
-                        <CircleImage
-                          src={community.imageUrl}
-                          alt={`${community.name} Image`}
-                          className="mr-2 h-4 w-4"
-                        />
-                        {community.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                  {communitiesAsModerator.length > 0 && (
+                    <CommandGroup heading="MODERATING">
+                      {communitiesAsModerator.map((community) => (
+                        <CommandItem
+                          key={"community" + community.id}
+                          onSelect={() => handleSelectCommunity(community)}
+                          value={
+                            "moderatingCommunity" + community.id.toString()
+                          }
+                        >
+                          <CircleImage
+                            src={community.imageUrl}
+                            alt={`${community.name} Image`}
+                            className="mr-2 h-4 w-4"
+                          />
+                          {community.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+                  {communitiesAsMember.length > 0 && (
+                    <CommandGroup heading="YOUR COMMUNITIES">
+                      {communitiesAsMember.map((community) => (
+                        <CommandItem
+                          key={"yourCommunity" + community.id}
+                          onSelect={() => handleSelectCommunity(community)}
+                          value={"yourCommunity" + community.id.toString()}
+                        >
+                          <CircleImage
+                            src={community.imageUrl}
+                            alt={`${community.name} Image`}
+                            className="mr-2 h-4 w-4"
+                          />
+                          {community.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )}
+
+                  {link && (
+                    <>
+                      <CommandSeparator />
+                      <CommandGroup>
+                        <CommandItem
+                          key={"all"}
+                          onSelect={() => handleSelectCommunity("all")}
+                          value={"all"}
+                        >
+                          <Home className="mr-2 h-4 w-4 text-primary" />
+                          All
+                        </CommandItem>
+                      </CommandGroup>
+                    </>
+                  )}
                 </>
               )}
             </CommandList>
