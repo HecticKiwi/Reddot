@@ -20,7 +20,7 @@ const CommunityLink = ({
     <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
         <Link
-          href={`/community/${community.id}`}
+          href={`/r/${community.name}`}
           className={cn("hover:underline", className)}
         >
           r/{community.name}

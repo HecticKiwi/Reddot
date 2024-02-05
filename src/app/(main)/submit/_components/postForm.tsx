@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useCreatePost } from "@/hooks/post/useCreatePost";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import { postSchema, postSchemaType } from "@/schemas/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Community } from "@prisma/client";
@@ -22,10 +22,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 const PostForm = ({
-  profile,
+  profile: user,
   community,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentProfile>>;
+  profile: Awaited<ReturnType<typeof getCurrentUser>>;
   community?: Community | null;
 }) => {
   const router = useRouter();
@@ -42,9 +42,9 @@ const PostForm = ({
   });
 
   const onSubmit = async (values: postSchemaType) => {
-    const postId = await mutation.mutateAsync(values);
+    const { id, communityName } = await mutation.mutateAsync(values);
 
-    router.push(`/community/${values.communityId}/post/${postId}`);
+    router.push(`/r/${communityName}/post/${id}`);
   };
 
   return (
@@ -60,8 +60,11 @@ const PostForm = ({
                   <FormItem className="flex flex-col">
                     <FormLabel>Community</FormLabel>
                     <CommunitySearch
-                      profile={profile}
-                      onChange={field.onChange}
+                      user={user}
+                      onChange={(communityId) => {
+                        field.onChange(communityId);
+                        router.push(`?communityId=${communityId}`);
+                      }}
                       community={community}
                     />
                     <FormMessage />

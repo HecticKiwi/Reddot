@@ -4,7 +4,7 @@ import { postSchemaType } from "@/schemas/post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { title } from "process";
 
-export const useDeletePost = ({ postId }: { postId: number }) => {
+export const useDeletePost = ({ postId }: { postId: string }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -17,7 +17,7 @@ export const useDeletePost = ({ postId }: { postId: number }) => {
       });
     },
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast({ title: "Post deletion failed.", description: error.message });
     },
   });

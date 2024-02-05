@@ -1,7 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCommentsForPost } from "@/prisma/comment";
+import { getCurrentUser } from "@/prisma/profile";
 import { Prisma } from "@prisma/client";
 import { Score } from "./post";
 
@@ -21,69 +22,8 @@ export type PopulatedComment = CommentWithAuthor & {
   fromPostAuthor: boolean;
 };
 
-export async function getCommentsForPost({ postId }: { postId: number }) {
-  const profile = await getCurrentProfile();
-
-  const post = await prisma.post.findUniqueOrThrow({
-    where: {
-      id: postId,
-    },
-  });
-
-  const comments = await prisma.comment.findMany({
-    where: {
-      postId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      author: true,
-    },
-  });
-
-  const parsedComments = await Promise.all(
-    comments.map(async (comment) => {
-      const userVote = await prisma.vote.findUnique({
-        where: {
-          profileId_targetType_targetId: {
-            profileId: profile.id,
-            targetType: "COMMENT",
-            targetId: comment.id,
-          },
-        },
-      });
-
-      return {
-        ...comment,
-        userScore: (userVote?.value || 0) as Score,
-      };
-    }),
-  );
-
-  const mappedComments: PopulatedComment[] = parsedComments.map((comment) => ({
-    ...comment,
-    childComments: [],
-    fromPostAuthor: comment.authorId === post.authorId,
-  }));
-
-  const commentDictionary: { [k: number]: PopulatedComment } = {};
-
-  for (const comment of mappedComments) {
-    commentDictionary[comment.id] = comment;
-  }
-
-  for (const comment of mappedComments) {
-    if (comment.parentCommentId) {
-      commentDictionary[comment.parentCommentId].childComments.push(comment);
-    }
-  }
-
-  const rootComments = mappedComments.filter(
-    (comment) => comment.parentCommentId === null,
-  );
-
-  return rootComments;
+export async function getCommentsForPostAction({ postId }: { postId: string }) {
+  return await getCommentsForPost({ postId });
 }
 
 export async function commentOnPost({
@@ -91,11 +31,11 @@ export async function commentOnPost({
   parentCommentId,
   content,
 }: {
-  postId: number;
-  parentCommentId?: number;
+  postId: string;
+  parentCommentId?: string;
   content: string;
 }) {
-  const profile = await getCurrentProfile();
+  const profile = await getCurrentUser();
 
   const comment = await prisma.comment.create({
     data: {

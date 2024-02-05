@@ -14,7 +14,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PostActions from "./postActions";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import {
   useQuery,
   useMutation,
@@ -30,9 +30,9 @@ const PostCard = ({
   inCommunity,
   preview,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentProfile>>;
+  profile: Awaited<ReturnType<typeof getCurrentUser>>;
   initialPost?: Awaited<ReturnType<typeof getPostById>>;
-  postId: number;
+  postId: string;
   inCommunity?: boolean;
   preview?: boolean;
 }) => {
@@ -46,7 +46,6 @@ const PostCard = ({
     return null;
   }
 
-  const userVote = post.userScore;
   return (
     <>
       <div className="flex overflow-hidden rounded-lg border">
@@ -58,7 +57,7 @@ const PostCard = ({
           />
         </aside>
         <div className={cn("flex-grow p-4", preview && "")}>
-          <div className="mb-1 flex flex-wrap items-center text-xs text-slate-400">
+          <div className="mb-1 flex flex-wrap items-center gap-y-1 text-xs text-slate-400">
             {(!inCommunity || !preview) && (
               <>
                 <CircleImage
@@ -81,7 +80,7 @@ const PostCard = ({
           </div>
           {preview && (
             <Link
-              href={`/community/${post.communityId}/post/${post.id}`}
+              href={`/r/${post.community.name}/post/${post.id}`}
               className="block"
             >
               <h2 className="text-xl font-semibold hover:text-branding active:text-branding">
@@ -90,7 +89,6 @@ const PostCard = ({
             </Link>
           )}
           {!preview && <h2 className="text-xl font-semibold">{post.title}</h2>}
-
           {/* Media */}
           {post.mediaUrl && (
             <Button
@@ -105,7 +103,6 @@ const PostCard = ({
             </Button>
           )}
           {post.mediaUrl && <MediaPlayer url={post.mediaUrl} className="" />}
-
           {/* Content */}
           {post.content && (
             <TipTap
@@ -113,7 +110,6 @@ const PostCard = ({
               editor={{ content: post.content, readOnly: true }}
             />
           )}
-
           {/* Bottom actions */}
           <PostActions post={post} preview={preview} profile={profile} />
         </div>

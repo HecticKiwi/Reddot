@@ -18,7 +18,7 @@ export const useCreatePost = () => {
       });
     },
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast({ title: "Something went wrong.", description: error.message });
     },
   });

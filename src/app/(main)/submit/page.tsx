@@ -2,19 +2,19 @@ import { Community } from "@prisma/client";
 import PostForm from "./_components/postForm";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
 import { getCommunityById } from "@/prisma/community";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 
 export default async function NewPostPage({
   searchParams,
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const profile = await getCurrentProfile();
+  const profile = await getCurrentUser();
   const communityId = searchParams?.communityId as string;
   let community: Community | null = null;
 
   if (searchParams?.communityId) {
-    community = await getCommunityById(Number(communityId));
+    community = await getCommunityById(communityId);
   }
 
   return (
@@ -25,7 +25,7 @@ export default async function NewPostPage({
         <PostForm profile={profile} community={community} />
         {community && (
           <CommunitySidebar
-            communityId={Number(communityId)}
+            communityId={communityId}
             className="hidden md:block"
           />
         )}

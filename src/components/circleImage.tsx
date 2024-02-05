@@ -8,17 +8,21 @@ const CircleImage = ({
   src,
   alt,
   fallback,
+  fallbackClassName,
 }: {
   className?: string;
   src?: string | null;
   alt: string;
   fallback?: ReactNode;
+  fallbackClassName?: string;
 }) => {
   return (
     <>
       <Avatar className={cn(className)}>
         <AvatarImage src={src || ""} alt={alt} className="object-cover" />
-        <AvatarFallback className="">{fallback}</AvatarFallback>
+        <AvatarFallback className={cn(fallbackClassName)}>
+          {fallback}
+        </AvatarFallback>
       </Avatar>
     </>
   );

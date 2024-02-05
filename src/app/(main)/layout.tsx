@@ -3,7 +3,11 @@ import Setup from "@/components/setup";
 import "@/css/clerk.css";
 import "@/css/globals.css";
 import "@/css/tiptap.css";
-import { initialProfile } from "@/prisma/profile";
+import { validateRequest } from "@/lib/auth";
+import {
+  getCurrentUser,
+  initialProfile as initialUser,
+} from "@/prisma/profile";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,9 +20,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await initialProfile();
+  const user = await initialUser();
 
-  if (!profile) {
+  if (!user?.username) {
     return <Setup />;
   }
 

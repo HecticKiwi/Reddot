@@ -10,16 +10,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Profile {
-  id Int @id @default(autoincrement())
+enum Provider {
+  GITHUB
+  GOOGLE
+}
 
-  username String  @unique
-  about    String?
-  score    Int     @default(0)
+model OAuthAccount {
+  providerId     Provider
+  providerUserId String
 
-  clerkId           String @unique
-  clerkEmailAddress String
-  clerkImageUrl     String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([providerId, providerUserId])
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+
+  sessions Session[]
+
+  username  String
+  avatarUrl String?
+  about     String?
+  score     Int     @default(0)
 
   posts                  Post[]
   comments               Comment[]
@@ -27,12 +49,13 @@ model Profile {
   communitiesAsModerator Community[] @relation("communityMods")
   communitiesAsMember    Community[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  OAuthAccount OAuthAccount[]
 }
 
 model Community {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   name        String  @unique
   description String
@@ -42,12 +65,12 @@ model Community {
   updatedAt DateTime @updatedAt
 
   posts      Post[]
-  moderators Profile[] @relation("communityMods")
-  members    Profile[]
+  moderators User[] @relation("communityMods")
+  members    User[]
 }
 
 model Post {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   title    String
   content  String
@@ -56,10 +79,10 @@ model Post {
 
   score Int @default(0)
 
-  authorId Int
-  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  communityId Int
+  communityId String
   community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -69,7 +92,7 @@ model Post {
 }
 
 model Comment {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   content String
   score   Int     @default(0)
@@ -78,29 +101,29 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  authorId Int
-  author   Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  postId Int
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  parentCommentId Int?      @map("parentId")
+  parentCommentId String?   @map("parentId")
   parentComment   Comment?  @relation("ChildComments", fields: [parentCommentId], references: [id], onDelete: Cascade)
   childComments   Comment[] @relation("ChildComments")
 }
 
 model Vote {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   value Int
 
-  profileId Int
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   targetType VoteTarget
-  targetId   Int
+  targetId   String
 
-  @@unique([profileId, targetType, targetId])
+  @@unique([userId, targetType, targetId])
 }
 
 enum VoteTarget {

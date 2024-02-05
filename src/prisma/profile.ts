@@ -1,29 +1,29 @@
+import { validateRequest } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Prisma, Profile } from "@prisma/client";
-import { cache } from "react";
-import { getUser } from "@/lib/supabase/server";
+import { User } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
-export const initialProfile = async (): Promise<Profile | null> => {
-  const user = await getUser();
+export const initialProfile = async (): Promise<User | null> => {
+  const { user } = await validateRequest();
 
   if (!user) {
     return redirect("/login");
   }
 
-  const profile = await prisma.profile.findUnique({
+  const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      clerkId: user.id,
+      id: user.id,
     },
   });
 
-  return profile;
+  return userData;
 };
 
-export async function getProfile(id: number) {
-  const profile = await prisma.profile.findUniqueOrThrow({
+export async function getProfile(id: string) {
+  const userData = await prisma.user.findFirstOrThrow({
     where: {
-      id,
+      username: id,
     },
     include: {
       communitiesAsMember: true,
@@ -31,41 +31,15 @@ export async function getProfile(id: number) {
     },
   });
 
-  return profile;
+  return userData;
 }
 
-export const getCurrentProfile = cache(async () => {
-  const { id } = await getUser();
-
-  if (!id) {
-    throw new Error("Profile doesn't exist");
-  }
-
-  console.time("auth");
-  const profile = await prisma.profile.findUnique({
-    where: {
-      clerkId: id,
-    },
-    include: {
-      communitiesAsMember: true,
-      communitiesAsModerator: true,
-    },
-  });
-  console.timeEnd("auth");
-
-  if (!profile) {
-    throw new Error("Profile doesn't exist");
-  }
-
-  return profile;
-});
-
-export async function getCurrentUser() {
-  const user = await getUser();
+export const getCurrentUser = cache(async () => {
+  const { user } = await validateRequest();
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("Not logged in");
   }
 
   return user;
-}
+});

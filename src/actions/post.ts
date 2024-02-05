@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import { postSchemaType } from "@/schemas/post";
 import { Prisma } from "@prisma/client";
 
@@ -9,20 +9,37 @@ export type Score = 1 | 0 | -1;
 export type PostWithUserScore = Prisma.PromiseReturnType<typeof getPostById>;
 
 export async function createPost(data: postSchemaType) {
-  const profile = await getCurrentProfile();
+  const profile = await getCurrentUser();
 
   const post = await prisma.post.create({
     data: {
       ...data,
       authorId: profile.id,
+      score: 1,
+    },
+    include: {
+      community: true,
     },
   });
 
-  return post.id;
+  await prisma.vote.create({
+    data: {
+      targetType: "POST",
+      targetId: post.id,
+      value: 1,
+      user: {
+        connect: {
+          id: profile.id,
+        },
+      },
+    },
+  });
+
+  return { id: post.id, communityName: post.community.name };
 }
 
-export async function getPostById(id: number) {
-  const profile = await getCurrentProfile();
+export async function getPostById(id: string) {
+  const user = await getCurrentUser();
 
   const postPromise = prisma.post.findUniqueOrThrow({
     where: {
@@ -41,8 +58,8 @@ export async function getPostById(id: number) {
 
   const userVotePromise = prisma.vote.findUnique({
     where: {
-      profileId_targetType_targetId: {
-        profileId: profile.id,
+      userId_targetType_targetId: {
+        userId: user.id,
         targetType: "POST",
         targetId: id,
       },
@@ -51,48 +68,21 @@ export async function getPostById(id: number) {
 
   const [post, userVote] = await Promise.all([postPromise, userVotePromise]);
 
-  console.timeEnd("some");
   return {
     ...post,
     userScore: (userVote?.value as Score) || 0,
   };
 }
 
-export async function markPostAsRemoved(id: number) {
-  const profile = await getCurrentProfile();
-
-  const post = await prisma.post.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  const isModerating = profile.communitiesAsModerator.some(
-    (community) => community.id === post.communityId,
-  );
-
-  if (!isModerating) {
-    throw new Error("You're not a mod!");
-  }
-
-  await prisma.post.update({
-    where: {
-      id,
-    },
-    data: {
-      removed: !post.removed,
-    },
-  });
-
-  return !post.removed;
-}
-
-export async function deletePost(id: number) {
+export async function deletePost(id: string) {
   const post = await prisma.post.delete({
     where: {
       id,
     },
+    include: {
+      community: true,
+    },
   });
 
-  return post;
+  return post.community.name;
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { createProfile, isUsernameAvailable } from "@/actions/profile";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,10 +27,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "./ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { isUsernameAvailable, updateProfile } from "@/actions/profile";
 
 const formSchema = z.object({
   username: z
     .string()
+    .regex(/^[a-zA-Z0-9_]*$/, {
+      message: "Usernames can only contain letters, numbers, and underscores",
+    })
     .refine(
       (username) => username.length > 3 && username.length < 20,
       "Username must be between 3 and 20 characters",
@@ -61,13 +64,13 @@ const Setup = () => {
         return form.setError("username", { message: "Username is taken." });
       }
 
-      await createProfile(values.username);
+      await updateProfile(values);
 
       toast({ title: `Welcome, ${values.username}!` });
       router.refresh();
     } catch (error: any) {
       toast({
-        title: "Something went wrong",
+        title: "Something went wrong.",
         description: error.message,
       });
     }

@@ -19,16 +19,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 import { useDeletePost } from "@/hooks/post/useDeletePost";
-import { useMarkPostAsRemoved } from "@/hooks/post/useMarkPostAsRemoved";
 import { cn } from "@/lib/utils";
-import { getCurrentProfile } from "@/prisma/profile";
-import {
-  Ban,
-  LinkIcon,
-  MessageSquare,
-  MoreHorizontal,
-  Trash,
-} from "lucide-react";
+import { getCurrentUser } from "@/prisma/profile";
+import { LinkIcon, MessageSquare, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -37,12 +30,11 @@ const PostActions = ({
   post,
   preview,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentProfile>>;
+  profile: Awaited<ReturnType<typeof getCurrentUser>>;
   post: Awaited<ReturnType<typeof getPostById>>;
   preview?: boolean;
 }) => {
   const router = useRouter();
-  const removeMutation = useMarkPostAsRemoved({ postId: post.id });
   const deleteMutation = useDeletePost({ postId: post.id });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -61,7 +53,7 @@ const PostActions = ({
           className="h-auto gap-1 p-1 text-xs text-muted-foreground disabled:opacity-100"
           disabled={!preview}
           onClick={() =>
-            router.push(`/community/${post.communityId}/post/${post.id}`)
+            router.push(`/r/${post.community.name}/post/${post.id}`)
           }
         >
           <MessageSquare className="h-4 w-4" />
@@ -73,7 +65,7 @@ const PostActions = ({
           className="h-auto gap-1 p-1 text-xs text-muted-foreground"
           onClick={() => {
             navigator.clipboard.writeText(
-              `${window.location.origin}/post/${post.id}`,
+              `${window.location.origin}/r/${post.community.name}/post/${post.id}`,
             );
 
             toast({
@@ -84,26 +76,6 @@ const PostActions = ({
           <LinkIcon className="h-4 w-4" />
           <span>Copy link</span>
         </Button>
-
-        {false && (
-          <>
-            <Button
-              variant={"ghost"}
-              size={"sm"}
-              className={cn(
-                "h-auto gap-1 p-1 text-xs text-muted-foreground",
-                post.removed && "text-destructive",
-              )}
-              onClick={() => {
-                removeMutation.mutate();
-              }}
-              disabled={removeMutation.isPending}
-            >
-              <Ban className="h-4 w-4" />
-              <span>{post.removed ? "Removed" : "Remove"}</span>
-            </Button>
-          </>
-        )}
 
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DropdownMenu>
@@ -150,9 +122,9 @@ const PostActions = ({
               </Button>
               <Button
                 onClick={async () => {
-                  const post = await deleteMutation.mutateAsync();
+                  const communityName = await deleteMutation.mutateAsync();
                   setIsDialogOpen(false);
-                  router.push(`/community/${post.communityId}`);
+                  router.push(`/r/${communityName}`);
                 }}
                 disabled={deleteMutation.isPending}
               >

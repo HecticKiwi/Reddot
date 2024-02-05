@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export const useJoinOrLeaveCommunity = ({
   communityId,
 }: {
-  communityId: number;
+  communityId: string;
 }) => {
   const queryClient = useQueryClient();
 
@@ -17,7 +17,7 @@ export const useJoinOrLeaveCommunity = ({
       const joined = data;
 
       queryClient.resetQueries({
-        queryKey: ["posts", "profile", null],
+        queryKey: ["posts", "user", null],
       });
 
       const action = joined ? "joined" : "left";
@@ -28,7 +28,7 @@ export const useJoinOrLeaveCommunity = ({
       });
     },
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast({
         title: "Failed to join this community",
         description: error.message,

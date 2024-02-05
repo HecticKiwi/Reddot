@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import { Prisma, Vote, VoteTarget } from "@prisma/client";
 
 export async function voteOnPostOrComment({
@@ -9,26 +9,27 @@ export async function voteOnPostOrComment({
   commentId,
   score,
 }: {
-  postId: number;
-  commentId?: number;
+  postId: string;
+  commentId?: string;
   score: 1 | 0 | -1;
 }) {
-  const profile = await getCurrentProfile();
+  const user = await getCurrentUser();
 
   const targetType: VoteTarget = commentId ? "COMMENT" : "POST";
   const targetId = commentId ?? postId;
 
-  const profileId_targetType_targetId = {
-    profileId: profile.id,
-    targetType,
-    targetId,
-  };
+  const userId_targetType_targetId: Prisma.VoteUserIdTargetTypeTargetIdCompoundUniqueInput =
+    {
+      userId: user.id,
+      targetType,
+      targetId,
+    };
 
   let vote: Vote | null = null;
 
   const existingVote = await prisma.vote.findUnique({
     where: {
-      profileId_targetType_targetId,
+      userId_targetType_targetId,
     },
   });
 
@@ -47,7 +48,7 @@ export async function voteOnPostOrComment({
     },
   };
 
-  let authorId: number = 0;
+  let authorId: string = "";
 
   // Update post/comment score
   if (targetType === "POST") {
@@ -63,7 +64,7 @@ export async function voteOnPostOrComment({
   }
 
   // Update author's score
-  await prisma.profile.update({
+  await prisma.user.update({
     where: {
       id: authorId,
     },
@@ -79,13 +80,13 @@ export async function voteOnPostOrComment({
     // Vote
     vote = await prisma.vote.upsert({
       where: {
-        profileId_targetType_targetId,
+        userId_targetType_targetId,
       },
       update: {
         value: score,
       },
       create: {
-        profileId: profile.id,
+        userId: user.id,
         targetType,
         targetId,
         value: score,
@@ -95,7 +96,7 @@ export async function voteOnPostOrComment({
     // Remove vote
     await prisma.vote.delete({
       where: {
-        profileId_targetType_targetId,
+        userId_targetType_targetId,
       },
     });
   }

@@ -1,17 +1,17 @@
 import { getPosts } from "@/actions/community";
 import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import Link from "next/link";
-import Posts, { OrderBy } from "./community/[communityId]/_components/posts";
 import SortTabs from "@/components/sortTabs";
+import Posts, { OrderBy } from "./r/[communityId]/_components/posts";
 
 const MainPage = async ({
   searchParams,
 }: {
   searchParams: { sort: OrderBy };
 }) => {
-  const profile = await getCurrentProfile();
+  const user = await getCurrentUser();
 
   const orderBy =
     searchParams.sort === "new" || searchParams.sort === "top"
@@ -19,7 +19,7 @@ const MainPage = async ({
       : "new";
 
   const initialPosts = await getPosts({
-    type: "profile",
+    type: "user",
     id: null,
     orderBy,
   });
@@ -28,7 +28,7 @@ const MainPage = async ({
     <>
       <main className="mx-auto max-w-screen-lg px-2 py-8 sm:px-8">
         <CommunitySidebarView
-          header={`Hello, ${profile.username}.`}
+          header={`Hello, ${user.username}.`}
           description="The home page has posts from all your joined communities."
           className="mb-8 w-full md:hidden"
         />
@@ -38,8 +38,8 @@ const MainPage = async ({
             <SortTabs orderBy={orderBy} />
 
             <Posts
-              profile={profile}
-              type="profile"
+              user={user}
+              type="user"
               id={null}
               initialPosts={initialPosts}
               orderBy={orderBy}
@@ -47,7 +47,7 @@ const MainPage = async ({
           </div>
 
           <CommunitySidebarView
-            header={`Hello, ${profile.username}.`}
+            header={`Hello, ${user.username}.`}
             description="The home page has posts from all your joined communities."
             className="hidden md:block"
           />

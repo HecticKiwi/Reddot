@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
 import { startTransition, useOptimistic } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import { produce } from "immer";
 import { getPostById } from "@/actions/post";
 import { toast } from "./ui/use-toast";
@@ -18,8 +18,8 @@ const VoteButtons = ({
   score,
   orientation,
 }: {
-  postId: number;
-  commentId?: number;
+  postId: string;
+  commentId?: string;
   userVote: number;
   score: number;
   orientation?: "vertical" | "horizontal";

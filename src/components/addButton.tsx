@@ -27,7 +27,7 @@ const AddButton = ({ className }: { className?: string }) => {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/community/submit" className="flex items-center gap-2">
+            <Link href="/r/submit" className="flex items-center gap-2">
               <Component className="h-4 w-4" />
               Community
             </Link>

@@ -5,21 +5,21 @@ import {
 } from "@/components/ui/hover-card";
 import UserCard from "./userCard";
 import Link from "next/link";
-import { Profile } from "@prisma/client";
 import { cn } from "@/lib/utils";
+import { User } from "@prisma/client";
 
 const UserLink = ({
   profile,
   className,
 }: {
-  profile: Profile;
+  profile: User;
   className?: string;
 }) => {
   return (
     <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
         <Link
-          href={`/user/${profile.id}`}
+          href={`/user/${profile.username}`}
           className={cn("hover:underline", className)}
         >
           {profile.username}

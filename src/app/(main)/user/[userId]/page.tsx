@@ -1,9 +1,7 @@
 import UserCard from "@/components/userCard";
 import { getProfile } from "@/prisma/profile";
 import { redirect } from "next/navigation";
-import Posts, {
-  OrderBy,
-} from "../../community/[communityId]/_components/posts";
+import Posts, { OrderBy } from "../../r/[communityId]/_components/posts";
 import { getPosts } from "@/actions/community";
 import SortTabs from "@/components/sortTabs";
 
@@ -14,8 +12,7 @@ const UserIdPage = async ({
   params: { userId: string };
   searchParams: { sort: OrderBy };
 }) => {
-  console.time("user");
-  const profile = await getProfile(Number(params.userId));
+  const profile = await getProfile(params.userId);
 
   if (!profile) {
     redirect("/");
@@ -27,27 +24,25 @@ const UserIdPage = async ({
       : "new";
 
   const initialPosts = await getPosts({
-    type: "profile",
+    type: "user",
     id: null,
     orderBy,
   });
 
-  console.timeEnd("user");
-
   return (
     <>
-      <main className="mx-auto max-w-screen-lg p-2 sm:p-8">
+      <main className="mx-auto max-w-screen-lg px-2 py-8 sm:p-8">
         <UserCard profile={profile} className="mb-8 w-full md:hidden" />
 
         <div className="flex gap-8">
           <div className="flex-grow">
             <SortTabs orderBy={orderBy} />
             <Posts
-              profile={profile}
-              type="profile"
+              user={profile}
+              type="user"
               initialPosts={initialPosts}
               orderBy={orderBy}
-              id={Number(params.userId)}
+              id={params.userId}
             />
           </div>
           <UserCard profile={profile} className="hidden md:block" />

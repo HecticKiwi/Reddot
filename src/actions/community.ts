@@ -1,23 +1,33 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/prisma/profile";
 import { communityDto } from "@/schemas/community";
-import { Community, Prisma, PrismaClient, Profile } from "@prisma/client";
-import { Score } from "./post";
-import { getCurrentProfile } from "@/prisma/profile";
+import { Community, Prisma, User } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { Long_Cang } from "next/font/google";
+import { Score } from "./post";
+import { longFormatters } from "date-fns";
 
 export type CommunityWithMods = Community & {
-  moderators: Profile[];
+  moderators: User[];
 };
 
 export type CommunityThing = Partial<Community> & {
   image: File | null;
 };
 
-export async function createCommunity(data: communityDto): Promise<number> {
-  const profile = await getCurrentProfile();
+export async function isCommunityNameAvailable(name: string) {
+  const community = await prisma.community.findUnique({
+    where: {
+      name,
+    },
+  });
+
+  return !community;
+}
+
+export async function createCommunity(data: communityDto) {
+  const profile = await getCurrentUser();
 
   const community = await prisma.community.create({
     data: {
@@ -27,10 +37,15 @@ export async function createCommunity(data: communityDto): Promise<number> {
           id: profile.id,
         },
       },
+      members: {
+        connect: {
+          id: profile.id,
+        },
+      },
     },
   });
 
-  return community.id;
+  return community.name;
 }
 
 export async function searchCommunitiesByName(
@@ -55,12 +70,12 @@ export async function updateCommunity({
   communityId,
   data,
 }: {
-  communityId: number;
+  communityId: string;
   data: Partial<communityDto>;
 }) {
   const community = await prisma.community.update({
     where: {
-      id: communityId,
+      name: communityId,
     },
     data,
   });
@@ -71,11 +86,11 @@ export async function updateCommunity({
 export async function joinOrLeaveCommunity({
   communityId,
 }: {
-  communityId: number;
+  communityId: string;
 }) {
-  const profile = await getCurrentProfile();
+  const profile = await getCurrentUser();
 
-  const where: Prisma.ProfileWhereUniqueInput = {
+  const where: Prisma.UserWhereUniqueInput = {
     id: profile.id,
     communitiesAsMember: {
       some: {
@@ -84,12 +99,12 @@ export async function joinOrLeaveCommunity({
     },
   };
 
-  const hasJoined = await prisma.profile.findUnique({
+  const hasJoined = await prisma.user.findUnique({
     where,
   });
 
   if (hasJoined) {
-    await prisma.profile.update({
+    await prisma.user.update({
       where,
       data: {
         communitiesAsMember: {
@@ -100,7 +115,7 @@ export async function joinOrLeaveCommunity({
       },
     });
   } else {
-    await prisma.profile.update({
+    await prisma.user.update({
       where: {
         id: profile.id,
       },
@@ -122,16 +137,15 @@ export async function joinOrLeaveCommunity({
 export async function getPosts({
   type,
   id,
-  pageParam = 0,
+  pageParam,
   orderBy: orderByType,
 }: {
-  type: "profile" | "community";
-  id: number | null;
-  pageParam?: number;
+  type: "user" | "community";
+  id: string | null;
+  pageParam?: string;
   orderBy: "new" | "top";
 }) {
-  console.time("getPosts");
-  const profile = await getCurrentProfile();
+  const user = await getCurrentUser();
 
   const take = 5;
   const cursor = pageParam
@@ -141,15 +155,15 @@ export async function getPosts({
     : undefined;
   const skip = cursor ? 1 : 0;
 
-  const communitiesAsMemberIds = profile.communitiesAsMember.map(
+  const communitiesAsMemberIds = user.communitiesAsMember.map(
     (community) => community.id,
   );
 
-  const where: Prisma.PostScalarWhereInput = {
+  const where: Prisma.PostWhereInput = {
     removed: false,
   };
 
-  if (type === "profile") {
+  if (type === "user") {
     if (id === null) {
       where.communityId = {
         in: communitiesAsMemberIds,
@@ -160,7 +174,9 @@ export async function getPosts({
   } else {
     if (id === null) {
     } else {
-      where.communityId = id;
+      where.community = {
+        name: id,
+      };
     }
   }
 
@@ -194,8 +210,8 @@ export async function getPosts({
     posts.map(async (post) => {
       const userVote = await prisma.vote.findUnique({
         where: {
-          profileId_targetType_targetId: {
-            profileId: profile.id,
+          userId_targetType_targetId: {
+            userId: user.id,
             targetType: "POST",
             targetId: post.id,
           },

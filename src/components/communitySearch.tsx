@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSearchCommunity } from "@/hooks/community/useSearchCommunity";
-import { getCurrentProfile } from "@/prisma/profile";
+import { getCurrentUser } from "@/prisma/profile";
 import { Community } from "@prisma/client";
 import { useDebounce } from "@uidotdev/usehooks";
 import { ChevronDown, Home, Loader } from "lucide-react";
@@ -24,14 +24,14 @@ import { useEffect, useState } from "react";
 import CircleImage from "./circleImage";
 
 const CommunitySearch = ({
-  profile,
+  user,
   community,
   onChange,
   link,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentProfile>>;
+  user: Awaited<ReturnType<typeof getCurrentUser>>;
   community?: Community | null;
-  onChange?: (newValue: number) => void;
+  onChange?: (newValue: string) => void;
   link?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -52,9 +52,9 @@ const CommunitySearch = ({
       setSelectedCommunity(community);
     } else if (link) {
       if (typeof community === "string") {
-        router.push(`/community/${community}`);
+        router.push(`/r/${community}`);
       } else {
-        router.push(`/community/${community.id}`);
+        router.push(`/r/${community.name}`);
       }
     }
 
@@ -65,7 +65,7 @@ const CommunitySearch = ({
     setSelectedCommunity(community);
   }, [community]);
 
-  const { communitiesAsMember, communitiesAsModerator } = profile;
+  const { communitiesAsMember, communitiesAsModerator } = user;
 
   return (
     <>

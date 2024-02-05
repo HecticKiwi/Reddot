@@ -1,60 +1,30 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Prisma, Profile } from "@prisma/client";
-import { Score } from "./post";
-import { getCurrentProfile, getCurrentUser } from "@/prisma/profile";
-import { getUser } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/prisma/profile";
+import { User } from "@prisma/client";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/actions";
 import { redirect } from "next/navigation";
 
 export async function isUsernameAvailable(username: string) {
-  const profile = await prisma.profile.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       username,
     },
   });
 
-  return !profile;
+  return !user;
 }
 
-export async function createProfile(username: string) {
-  const user = await getUser();
-
-  if (!user) {
-    throw new Error("Not signed in");
-  }
-
-  const profile = await prisma.profile.create({
-    data: {
-      username,
-      clerkId: user.id,
-      clerkEmailAddress: user.email ?? "",
-      clerkImageUrl: "",
-    },
-  });
-
-  return profile;
-}
-
-export async function updateProfile(data: Partial<Profile>) {
+export async function updateProfile(data: Partial<User>) {
   const user = await getCurrentUser();
 
-  const profile = await prisma.profile.update({
+  const updatedUser = await prisma.user.update({
     where: {
-      clerkId: user.id,
+      id: user.id,
     },
     data,
   });
 
-  return profile;
+  return updatedUser;
 }
-
-export const signOut = async () => {
-  "use server";
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-  await supabase.auth.signOut();
-  redirect("/login");
-};

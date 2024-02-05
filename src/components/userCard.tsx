@@ -1,22 +1,22 @@
-import { Profile } from "@prisma/client";
 import { format } from "date-fns";
 import { CakeSlice, Heart } from "lucide-react";
 import CircleImage from "./circleImage";
 import { Separator } from "./ui/separator";
 import { cn } from "@/lib/utils";
+import { User } from "@prisma/client";
 
 const UserCard = ({
   profile,
   className,
 }: {
-  profile: Profile;
+  profile: User;
   className?: string;
 }) => {
   return (
     <>
       <div className={cn("w-72 self-start rounded-lg border p-4", className)}>
         <CircleImage
-          src={profile.clerkImageUrl}
+          src={profile.avatarUrl}
           alt={profile.username}
           className="mx-auto h-24 w-24"
         />

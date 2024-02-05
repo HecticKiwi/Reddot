@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const postSchema = z.object({
-  communityId: z.number(),
+  communityId: z.string(),
   title: z
     .string()
     .min(2, "Title must be at least 2 characters")

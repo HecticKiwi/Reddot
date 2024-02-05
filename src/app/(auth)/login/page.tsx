@@ -1,29 +1,64 @@
-"use client";
-import { createClient } from "@/lib/supabase/client";
-import { Auth } from "@supabase/auth-ui-react";
+import { Button } from "@/components/ui/button";
 import {
-  // Import predefined theme
-  ThemeSupa,
-} from "@supabase/auth-ui-shared";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
-const supabase = createClient();
-
-export default function LoginPage() {
+export default async function Page() {
   return (
-    // <form>
-    //   <label htmlFor="email">Email:</label>
-    //   <input id="email" name="email" type="email" required />
-    //   <label htmlFor="password">Password:</label>
-    //   <input id="password" name="password" type="password" required />
-    //   <button formAction={login}>Log in</button>
-    //   <button formAction={signup}>Sign up</button>
-    // </form>
-    <Auth
-      supabaseClient={supabase}
-      appearance={{ theme: ThemeSupa }}
-      theme="dark"
-      providers={["google", "facebook", "twitter", "github"]}
-      redirectTo="http://example.com/auth/callback"
-    />
+    <>
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl">Create an account</CardTitle>
+          <CardDescription>
+            Enter your email below to create your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid grid-cols-2 gap-6">
+            <Button variant="outline" asChild>
+              <a href="/login/github">
+                <FaGithub className="mr-2 h-4 w-4" />
+                Github
+              </a>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="/login/google">
+                <FaGoogle className="mr-2 h-4 w-4" />
+                Google
+              </a>
+            </Button>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" placeholder="m@example.com" />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full">Create account</Button>
+        </CardFooter>
+      </Card>
+    </>
   );
 }

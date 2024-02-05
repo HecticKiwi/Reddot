@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CakeSlice } from "lucide-react";
+import { CakeSlice, User } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -10,13 +10,15 @@ const CommunitySidebarView = ({
   header,
   description,
   createdAt,
+  memberCount,
   inPost,
   className,
 }: {
-  id?: number;
+  id?: string;
   header: string;
   description: string;
   createdAt?: Date;
+  memberCount?: number;
   inPost?: boolean;
   className?: string;
 }) => {
@@ -31,14 +33,26 @@ const CommunitySidebarView = ({
         )}
       </div>
 
-      {createdAt && (
-        <div className="mt-2 flex items-center">
-          <CakeSlice />
-          <span className="ml-2 text-sm text-muted-foreground">
-            Created {format(createdAt, "MMM dd, yyyy")}
-          </span>
-        </div>
-      )}
+      {(memberCount || createdAt) && <Separator className="my-4" />}
+
+      <div className="space-y-2">
+        {memberCount !== undefined && (
+          <div className="flex items-center">
+            <User />
+            <span className="ml-2 text-sm text-muted-foreground">
+              {memberCount} member{memberCount !== 1 && "s"}
+            </span>
+          </div>
+        )}
+        {createdAt && (
+          <div className="flex items-center">
+            <CakeSlice />
+            <span className="ml-2 text-sm text-muted-foreground">
+              Created {format(createdAt, "MMM dd, yyyy")}
+            </span>
+          </div>
+        )}
+      </div>
 
       {id && (
         <>

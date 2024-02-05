@@ -1,13 +1,10 @@
-import prisma from "@/lib/prisma";
-import { Prisma, Profile } from "@prisma/client";
-import { getCurrentProfile } from "./profile";
-import { Score } from "@/actions/post";
 import { PopulatedComment } from "@/actions/comment";
+import { Score } from "@/actions/post";
+import prisma from "@/lib/prisma";
+import { getCurrentUser } from "./profile";
 
-export async function getCommentsForPost({ postId }: { postId: number }) {
-  console.time("comments");
-
-  const profile = await getCurrentProfile();
+export async function getCommentsForPost({ postId }: { postId: string }) {
+  const profile = await getCurrentUser();
 
   const post = await prisma.post.findUniqueOrThrow({
     where: {
@@ -26,14 +23,13 @@ export async function getCommentsForPost({ postId }: { postId: number }) {
       author: true,
     },
   });
-  console.timeEnd("comments");
 
   const parsedComments = await Promise.all(
     comments.map(async (comment) => {
       const userVote = await prisma.vote.findUnique({
         where: {
-          profileId_targetType_targetId: {
-            profileId: profile.id,
+          userId_targetType_targetId: {
+            userId: profile.id,
             targetType: "COMMENT",
             targetId: comment.id,
           },
@@ -53,7 +49,7 @@ export async function getCommentsForPost({ postId }: { postId: number }) {
     fromPostAuthor: comment.authorId === post.authorId,
   }));
 
-  const commentDictionary: { [k: number]: PopulatedComment } = {};
+  const commentDictionary: { [k: string]: PopulatedComment } = {};
 
   for (const comment of mappedComments) {
     commentDictionary[comment.id] = comment;

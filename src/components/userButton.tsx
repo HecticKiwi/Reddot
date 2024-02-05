@@ -1,4 +1,5 @@
 "use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,32 +8,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { createClient } from "@/lib/supabase/server";
-import { Profile } from "@prisma/client";
-import { LogOut, Settings, User } from "lucide-react";
-import { cookies } from "next/headers";
+import { Heart, LogOut, Settings, UserIcon } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import CircleImage from "./circleImage";
-import { signOut } from "@/actions/profile";
+import { User } from "@prisma/client";
+import { logout } from "@/actions/auth";
+import { Button } from "./ui/button";
 
-const CustomUserButton = ({ profile }: { profile: Profile }) => {
+const CustomUserButton = ({ user }: { user: User }) => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <CircleImage
-            src={profile.clerkImageUrl}
-            alt={profile.username}
-            fallback={<User className="text-slate-500" />}
-          />
+        <DropdownMenuTrigger asChild>
+          <Button variant={"ghost"} className="h-auto gap-2 p-1">
+            <CircleImage
+              src={user.avatarUrl}
+              alt={user.username}
+              fallback={<UserIcon className="text-slate-500" />}
+              className="h-8 w-8"
+            />
+
+            <div className="text-start">
+              <div className="text-xs ">{user.username}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Heart className="h-3 w-3" />
+                {user.score}
+              </div>
+            </div>
+          </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>
-            <p className="text-base font-medium">{profile.username}</p>
+            <p className="text-base font-medium">{user.username}</p>
             <p className="w-[200px] truncate text-sm font-normal text-muted-foreground">
-              {profile.clerkEmailAddress}
+              {user.email}
             </p>
           </DropdownMenuLabel>
 
@@ -40,10 +50,10 @@ const CustomUserButton = ({ profile }: { profile: Profile }) => {
 
           <DropdownMenuItem asChild>
             <Link
-              href={`/user/${profile.id}`}
+              href={`/user/${user.username}`}
               className="flex items-center gap-2"
             >
-              <User className="h-4 w-4" />
+              <UserIcon className="h-4 w-4" />
               Profile
             </Link>
           </DropdownMenuItem>
@@ -56,7 +66,7 @@ const CustomUserButton = ({ profile }: { profile: Profile }) => {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="gap-2" onSelect={() => signOut()}>
+          <DropdownMenuItem className="gap-2" onSelect={() => logout()}>
             <LogOut className="h-4 w-4" />
             Sign Out
           </DropdownMenuItem>
