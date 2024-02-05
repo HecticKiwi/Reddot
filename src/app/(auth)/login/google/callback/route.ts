@@ -23,9 +23,12 @@ export async function GET(request: Request): Promise<Response> {
     state !== storedState ||
     !storedCodeVerifier
   ) {
-    return new Response("Missing required information", {
-      status: 400,
-    });
+    return new Response(
+      `Missing: ${!code && "code"} ${!state && "state"} ${!storedState}`,
+      {
+        status: 400,
+      },
+    );
   }
 
   try {
