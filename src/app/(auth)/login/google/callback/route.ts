@@ -5,6 +5,8 @@ import { OAuth2RequestError } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request): Promise<Response> {
+  console.log("Hi there");
+
   // Check that url, code, state, and storedState are all valid
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -21,17 +23,19 @@ export async function GET(request: Request): Promise<Response> {
     state !== storedState ||
     !storedCodeVerifier
   ) {
-    return new Response(null, {
+    return new Response("Missing required information", {
       status: 400,
     });
   }
 
   try {
-    // Validate code and get the Google user
+    // Validate code
     const tokens = await google.validateAuthorizationCode(
       code,
       storedCodeVerifier,
     );
+
+    // Get Google user data
     const googleUserResponse = await fetch(
       "https://openidconnect.googleapis.com/v1/userinfo",
       {
@@ -84,15 +88,6 @@ export async function GET(request: Request): Promise<Response> {
         id: true,
       },
     });
-
-    // const account = await prisma.oAuthAccount.create({
-    //   data: {
-    //     providerId: Provider.GOOGLE,
-    //     providerUserId: googleUser.sub,
-    //     email,
-    //     userId: user.id,
-    //   },
-    // });
 
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
