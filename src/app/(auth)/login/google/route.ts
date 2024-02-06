@@ -16,7 +16,7 @@ export async function GET(): Promise<Response> {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     maxAge: 60 * 10,
-    sameSite: "none",
+    sameSite: "lax",
   };
 
   cookies().set("google_oauth_state", state, options);

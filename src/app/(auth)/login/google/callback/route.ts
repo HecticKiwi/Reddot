@@ -5,8 +5,6 @@ import { OAuth2RequestError } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request): Promise<Response> {
-  console.log("Hi there");
-
   // Check that url, code, state, and storedState are all valid
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -15,6 +13,14 @@ export async function GET(request: Request): Promise<Response> {
   const storedState = cookies().get("google_oauth_state")?.value ?? null;
   const storedCodeVerifier =
     cookies().get("google_oauth_code_verifier")?.value ?? null;
+
+  console.log("Credentials");
+
+  console.log(url);
+  console.log(code);
+  console.log(state);
+  console.log(storedState);
+  console.log(storedCodeVerifier);
 
   if (
     !code ||
