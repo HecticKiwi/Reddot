@@ -22,6 +22,8 @@ export async function GET(request: Request): Promise<Response> {
   console.log(storedState);
   console.log(storedCodeVerifier);
 
+  console.log(JSON.stringify(cookies().getAll));
+
   if (
     !code ||
     !state ||
