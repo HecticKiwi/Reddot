@@ -19,8 +19,8 @@ export async function GET(request: Request): Promise<Response> {
   console.log(url);
   console.log(code);
   console.log(state);
-  console.log(storedState);
-  console.log(storedCodeVerifier);
+  console.log("storedState: ", storedState);
+  console.log("storedCodeVerifier: ", storedCodeVerifier);
 
   console.log(JSON.stringify(cookies().getAll));
 
