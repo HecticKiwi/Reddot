@@ -24,7 +24,7 @@ export async function GET(request: Request): Promise<Response> {
     !storedCodeVerifier
   ) {
     return new Response(
-      `Missing: ${!code && "code"} ${!state && "state"} ${!storedState}`,
+      `Missing: ${!code && "code"} ${!state && "state"} ${!storedState} ${storedCodeVerifier}`,
       {
         status: 400,
       },
