@@ -15,7 +15,7 @@
     "@aws-sdk/s3-presigned-post": "^3.485.0",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-prisma": "^4.0.0",
-    "@prisma/client": "^5.7.1",
+    "@prisma/client": "^5.9.1",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -65,7 +65,6 @@
     "next-themes": "^0.2.1",
     "oslo": "^1.0.3",
     "patch-package": "^8.0.0",
-    "prisma": "^5.8.1",
     "react": "^18",
     "react-day-picker": "^8.9.1",
     "react-dom": "^18",
@@ -93,6 +92,7 @@
     "postcss": "^8",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.9",
+    "prisma": "^5.9.1",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

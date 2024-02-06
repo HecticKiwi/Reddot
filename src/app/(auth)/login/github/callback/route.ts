@@ -1,6 +1,5 @@
 import { github, lucia } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Provider } from "@prisma/client";
 import { OAuth2RequestError } from "arctic";
 import { cookies } from "next/headers";
 
@@ -11,7 +10,7 @@ export async function GET(request: Request): Promise<Response> {
   const state = url.searchParams.get("state");
   const storedState = cookies().get("github_oauth_state")?.value ?? null;
   if (!code || !state || !storedState || state !== storedState) {
-    return new Response(null, {
+    return new Response("Missing OAuth details", {
       status: 400,
     });
   }

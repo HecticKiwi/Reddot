@@ -1,6 +1,5 @@
-import { github, google, lucia } from "@/lib/auth";
+import { google, lucia } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Provider } from "@prisma/client";
 import { OAuth2RequestError } from "arctic";
 import { cookies } from "next/headers";
 
@@ -14,16 +13,6 @@ export async function GET(request: Request): Promise<Response> {
   const storedCodeVerifier =
     cookies().get("google_oauth_code_verifier")?.value ?? null;
 
-  console.log("Credentials");
-
-  console.log(url);
-  console.log(code);
-  console.log(state);
-  console.log("storedState: ", storedState);
-  console.log("storedCodeVerifier: ", storedCodeVerifier);
-
-  console.log(JSON.stringify(cookies().getAll));
-
   if (
     !code ||
     !state ||
@@ -31,12 +20,9 @@ export async function GET(request: Request): Promise<Response> {
     state !== storedState ||
     !storedCodeVerifier
   ) {
-    return new Response(
-      `Missing: ${!code && "code"} ${!state && "state"} ${!storedState} ${storedCodeVerifier}`,
-      {
-        status: 400,
-      },
-    );
+    return new Response("Missing OAuth details", {
+      status: 400,
+    });
   }
 
   try {
