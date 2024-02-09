@@ -51,19 +51,17 @@ model User {
   communitiesAsMember    Community[]
 
   createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
   OAuthAccount OAuthAccount[]
 }
 
 model Community {
-  id String @id @default(uuid())
+  id Int @id @default(autoincrement())
 
   name        String  @unique
   description String
   imageUrl    String?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   posts      Post[]
   moderators User[] @relation("communityMods")
@@ -83,11 +81,10 @@ model Post {
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  communityId String
+  communityId Int
   community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   comment Comment[]
 }
@@ -100,7 +97,6 @@ model Comment {
   deleted Boolean @default(false)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)

@@ -1,11 +1,13 @@
-import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
+import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { Community, Prisma, User as PrismaUser } from "@prisma/client";
-import { GitHub } from "arctic";
+import { GitHub, Google } from "arctic";
 import { Lucia, Session, User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
-import prisma from "./prisma";
-import { Google } from "arctic";
+
+import { sessionTable, userTable } from "../../drizzle/schema";
+import { db } from "./drizzle";
+import { and, eq } from "drizzle-orm";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,
@@ -28,7 +30,7 @@ const userInclude: Prisma.UserInclude = {
   communitiesAsModerator: true,
 };
 
-const adapter = new PrismaAdapter(prisma.session, prisma.user, userInclude);
+const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -64,7 +66,19 @@ export const validateRequest = cache(
       };
     }
 
+    console.time("drizzle");
     const result = await lucia.validateSession(sessionId);
+
+    const test = await db.query.userTable.findFirst({
+      with: {
+        communitiesAsModerator: true,
+      },
+    });
+    //@ts-ignore
+    test.communitiesAsMember = [];
+    result.user = test as unknown as User;
+
+    console.timeEnd("drizzle");
 
     // next.js throws when you attempt to set cookie when rendering page
     try {

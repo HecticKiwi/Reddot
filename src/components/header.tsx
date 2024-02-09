@@ -20,7 +20,7 @@ const Header = async () => {
             </span>
           </Link>
 
-          <CommunitySearch user={user} community={null} link />
+          {/* <CommunitySearch user={user} community={null} link /> */}
           <AddButton className="ml-auto" />
           <ThemeSwitcher />
           <CustomUserButton user={user} />

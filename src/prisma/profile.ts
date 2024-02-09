@@ -3,6 +3,12 @@ import prisma from "@/lib/prisma";
 import { User } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { sessionTable } from "../../drizzle/schema";
+import { db } from "@/lib/drizzle";
+
+const connectionString = process.env.DATABASE_URL;
 
 export const initialProfile = async (): Promise<User | null> => {
   const { user } = await validateRequest();
@@ -35,6 +41,8 @@ export async function getProfile(id: string) {
 }
 
 export const getCurrentUser = cache(async () => {
+  console.time("prisma");
+
   const { user } = await validateRequest();
 
   if (!user) {

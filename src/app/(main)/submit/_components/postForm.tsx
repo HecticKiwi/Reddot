@@ -59,14 +59,14 @@ const PostForm = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Community</FormLabel>
-                    <CommunitySearch
+                    {/* <CommunitySearch
                       user={user}
                       onChange={(communityId) => {
                         field.onChange(communityId);
                         router.push(`?communityId=${communityId}`);
                       }}
                       community={community}
-                    />
+                    /> */}
                     <FormMessage />
                   </FormItem>
                 )}

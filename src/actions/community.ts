@@ -7,6 +7,8 @@ import { Community, Prisma, User } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { Score } from "./post";
 import { longFormatters } from "date-fns";
+import { db } from "@/lib/drizzle";
+import { communityTable, modUsersToCommunities } from "../../drizzle/schema";
 
 export type CommunityWithMods = Community & {
   moderators: User[];
@@ -29,20 +31,32 @@ export async function isCommunityNameAvailable(name: string) {
 export async function createCommunity(data: communityDto) {
   const profile = await getCurrentUser();
 
-  const community = await prisma.community.create({
-    data: {
+  // const community = await prisma.community.create({
+  //   data: {
+  //     ...data,
+  //     moderators: {
+  //       connect: {
+  //         id: profile.id,
+  //       },
+  //     },
+  //     members: {
+  //       connect: {
+  //         id: profile.id,
+  //       },
+  //     },
+  //   },
+  // });
+
+  const [community] = await db
+    .insert(communityTable)
+    .values({
       ...data,
-      moderators: {
-        connect: {
-          id: profile.id,
-        },
-      },
-      members: {
-        connect: {
-          id: profile.id,
-        },
-      },
-    },
+    })
+    .returning();
+
+  await db.insert(modUsersToCommunities).values({
+    communityId: community.id,
+    userId: profile.id,
   });
 
   return community.name;
