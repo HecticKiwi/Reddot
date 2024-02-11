@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { userTable } from "../../../../../../drizzle/schemaasdf";
+import { userTable } from "../../../../../../drizzle/schema";
 
 export async function GET(request: Request): Promise<Response> {
   // Check that url, code, state, and storedState are all valid
@@ -61,13 +61,13 @@ export async function GET(request: Request): Promise<Response> {
     // });
     console.log("s");
 
-    const existingUser = await db.query.user.findFirst({
+    const existingUser = await db.query.userTable.findFirst({
       where: eq(userTable.email, email),
     });
 
     // If user is found, create session
     if (existingUser) {
-      const session = await lucia.createSession(existingUser.id, {});
+      const session = await lucia.createSession(existingUser.id.toString(), {});
       const sessionCookie = lucia.createSessionCookie(session.id);
       cookies().set(
         sessionCookie.name,
@@ -98,14 +98,13 @@ export async function GET(request: Request): Promise<Response> {
     const [user] = await db
       .insert(userTable)
       .values({
-        id: crypto.randomUUID(),
         username: "",
         email,
         avatarUrl: googleUser.picture,
       })
       .returning();
 
-    const session = await lucia.createSession(user.id, {});
+    const session = await lucia.createSession(user.id.toString(), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(
       sessionCookie.name,

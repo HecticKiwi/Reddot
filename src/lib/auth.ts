@@ -33,7 +33,12 @@ export type UserWithCommunities = User & {
   }[];
 };
 
-const adapter = new DrizzlePostgreSQLAdapter(db, session, userTable);
+// note here
+const adapter = new DrizzlePostgreSQLAdapter(
+  db,
+  session as any,
+  userTable as any,
+);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -71,6 +76,7 @@ export const validateRequest = cache(
 
     const result = await lucia.validateSession(sessionId);
 
+    console.time("hi");
     const test = await db.query.userTable.findFirst({
       with: {
         communitiesAsModerator: {
@@ -87,6 +93,7 @@ export const validateRequest = cache(
         },
       },
     });
+    console.timeEnd("hi");
 
     result.user = test as unknown as User;
 

@@ -8,7 +8,14 @@ import { revalidatePath } from "next/cache";
 import { Score } from "./post";
 import { longFormatters } from "date-fns";
 import { db } from "@/lib/drizzle";
-import { communityMods, communityTable } from "../../drizzle/schema";
+import {
+  communityMods,
+  communityTable,
+  postTable,
+  voteTable,
+} from "../../drizzle/schema";
+import { SQL, and, desc, eq, getTableColumns, gt, inArray } from "drizzle-orm";
+import { PgTableWithColumns } from "drizzle-orm/pg-core";
 
 export type CommunityWithMods = Community & {
   moderators: User[];
@@ -19,11 +26,14 @@ export type CommunityThing = Partial<Community> & {
 };
 
 export async function isCommunityNameAvailable(name: string) {
-  const community = await prisma.community.findUnique({
-    where: {
-      name,
-    },
+  const community = await db.query.communityTable.findFirst({
+    where: eq(communityTable.name, name),
   });
+  // const community = await prisma.community.findUnique({
+  //   where: {
+  //     name,
+  //   },
+  // });
 
   return !community;
 }
@@ -155,89 +165,68 @@ export async function getPosts({
   orderBy: orderByType,
 }: {
   type: "user" | "community";
-  id: string | null;
-  pageParam?: string;
+  id: number | null;
+  pageParam?: number;
   orderBy: "new" | "top";
 }) {
   const user = await getCurrentUser();
 
+  console.log(id);
+
   const take = 5;
-  const cursor = pageParam
-    ? {
-        id: pageParam,
-      }
-    : undefined;
-  const skip = cursor ? 1 : 0;
 
   const communitiesAsMemberIds = user.communitiesAsMember.map(
-    (community) => community.id,
+    (community) => community.community.id,
   );
 
-  const where: Prisma.PostWhereInput = {
-    removed: false,
-  };
+  let newWhere: any = eq(postTable.removed, false);
+
+  if (pageParam) [(newWhere = and(newWhere, gt(postTable.id, pageParam)))];
+
+  const community = await db.query.communityTable.findFirst({
+    where: eq(communityTable.name, id),
+  });
 
   if (type === "user") {
     if (id === null) {
-      where.communityId = {
-        in: communitiesAsMemberIds,
-      };
+      if (communitiesAsMemberIds.length > 0) {
+        newWhere = and(newWhere, inArray(postTable.id, communitiesAsMemberIds));
+      } else {
+        return [];
+      }
     } else {
-      where.authorId = id;
+      newWhere = and(newWhere, eq(postTable.authorId, id));
     }
   } else {
     if (id === null) {
     } else {
-      where.community = {
-        name: id,
-      };
+      newWhere = and(newWhere, eq(postTable.communityId, id));
+      // HERE
     }
   }
 
-  const orderBy: Prisma.PostOrderByWithRelationInput =
+  const newOrderBy =
     orderByType === "new"
-      ? {
-          createdAt: "desc",
-        }
-      : {
-          score: "desc",
-        };
+      ? [desc(postTable.createdAt)]
+      : [desc(postTable.score)];
 
-  const posts = await prisma.post.findMany({
-    where,
-    orderBy,
-    include: {
+  const posts2 = await db.query.postTable.findMany({
+    where: newWhere,
+    orderBy: newOrderBy,
+    with: {
       author: true,
       community: true,
-      _count: {
-        select: {
-          comment: true,
+      comments: {
+        columns: {
+          id: true,
         },
       },
+      votes: {
+        where: eq(voteTable.id, user.id),
+      },
     },
-    skip,
-    cursor,
-    take,
+    limit: take,
   });
 
-  const results = await Promise.all(
-    posts.map(async (post) => {
-      const userVote = await prisma.vote.findUnique({
-        where: {
-          userId_targetType_targetId: {
-            userId: user.id,
-            targetType: "POST",
-            targetId: post.id,
-          },
-        },
-      });
-
-      return {
-        ...post,
-        userScore: (userVote?.value as Score) || 0,
-      };
-    }),
-  );
-
-  return results;
+  return posts2;
 }

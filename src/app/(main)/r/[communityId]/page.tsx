@@ -38,6 +38,7 @@ export default async function CommunityPage({
     initialPostsPromise,
   ]);
 
+  console.log("asdf");
   if (!community) {
     notFound();
   }

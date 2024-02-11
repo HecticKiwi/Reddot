@@ -22,7 +22,7 @@ export const oauthAccount = pgTable(
   {
     providerId: provider("providerId").notNull(),
     providerUserId: text("providerUserId").notNull(),
-    userId: text("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "restrict",
@@ -43,7 +43,7 @@ export const session = pgTable("Session", {
     length: 255,
   }).primaryKey(),
 
-  userId: text("userId")
+  userId: integer("userId")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expiresAt", {
@@ -63,7 +63,7 @@ export const sessionRelations = relations(session, ({ one, many }) => ({
 export const userTable = pgTable(
   "User",
   {
-    id: text("id").primaryKey().notNull(),
+    id: serial("id").primaryKey().notNull(),
     email: text("email").notNull(),
     username: text("username").notNull(),
     avatarUrl: text("avatarUrl"),
@@ -111,14 +111,14 @@ export const communityRelations = relations(communityTable, ({ many }) => ({
   members: many(communityToUser),
 }));
 
-export const post = pgTable("Post", {
-  id: text("id").primaryKey().notNull(),
+export const postTable = pgTable("Post", {
+  id: serial("id").primaryKey().notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   mediaUrl: text("mediaUrl"),
   removed: boolean("removed").default(false).notNull(),
   score: integer("score").default(0).notNull(),
-  authorId: text("authorId")
+  authorId: integer("authorId")
     .notNull()
     .references(() => userTable.id, {
       onDelete: "cascade",
@@ -135,37 +135,42 @@ export const post = pgTable("Post", {
     .notNull(),
 });
 
-export const postRelations = relations(post, ({ one, many }) => ({
+export const postRelations = relations(postTable, ({ one, many }) => ({
   author: one(userTable, {
-    fields: [post.authorId],
+    fields: [postTable.authorId],
     references: [userTable.id],
   }),
   community: one(communityTable, {
-    fields: [post.communityId],
+    fields: [postTable.communityId],
     references: [communityTable.id],
   }),
+  comments: many(commentTable),
+  votes: many(voteTable),
 }));
 
-export const comment = pgTable(
+export const commentTable = pgTable(
   "Comment",
   {
-    id: text("id").primaryKey().notNull(),
+    id: serial("id").primaryKey().notNull(),
     content: text("content").notNull(),
     score: integer("score").default(0).notNull(),
     deleted: boolean("deleted").default(false).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "string" })
       .defaultNow()
       .notNull(),
-    authorId: text("authorId")
+    authorId: integer("authorId")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    postId: text("postId")
+    postId: integer("postId")
       .notNull()
-      .references(() => post.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    parentCommentId: text("parentId"),
+      .references(() => postTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    parentCommentId: serial("parentId"),
   },
   (table) => {
     return {
@@ -180,43 +185,56 @@ export const comment = pgTable(
   },
 );
 
-export const commentRelations = relations(comment, ({ one, many }) => ({
-  parentComment: one(comment, {
-    fields: [comment.parentCommentId],
-    references: [comment.id],
+export const commentRelations = relations(commentTable, ({ one, many }) => ({
+  parentComment: one(commentTable, {
+    fields: [commentTable.parentCommentId],
+    references: [commentTable.id],
   }),
   author: one(userTable, {
-    fields: [comment.authorId],
+    fields: [commentTable.authorId],
     references: [userTable.id],
   }),
-  post: one(post, {
-    fields: [comment.postId],
-    references: [post.id],
+  post: one(postTable, {
+    fields: [commentTable.postId],
+    references: [postTable.id],
   }),
 }));
 
-export const vote = pgTable(
+export const voteTable = pgTable(
   "Vote",
   {
     id: text("id").primaryKey().notNull(),
     value: integer("value").notNull(),
-    userId: text("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    targetType: voteTarget("targetType").notNull(),
-    targetId: text("targetId").notNull(),
+    postId: integer("postId"),
+    commentId: integer("commentId"),
+    // targetType: voteTarget("targetType").notNull(),
+    // targetId: text("targetId").notNull(),
   },
   (table) => {
     return {
       userIdTargetTypeTargetIdKey: uniqueIndex(
         "Vote_userId_targetType_targetId_key",
-      ).on(table.userId, table.targetType, table.targetId),
+      ).on(table.userId, table.postId, table.commentId),
     };
   },
 );
+
+export const voteRelations = relations(voteTable, ({ one, many }) => ({
+  post: one(postTable, {
+    fields: [voteTable.postId],
+    references: [postTable.id],
+  }),
+  comment: one(commentTable, {
+    fields: [voteTable.commentId],
+    references: [commentTable.id],
+  }),
+}));
 
 export const communityMods = pgTable(
   "_communityMods",
@@ -227,7 +245,7 @@ export const communityMods = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    b: text("B")
+    b: integer("B")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
@@ -265,7 +283,7 @@ export const communityToUser = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    b: text("B")
+    b: integer("B")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
