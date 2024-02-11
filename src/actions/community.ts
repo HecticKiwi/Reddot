@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import { Score } from "./post";
 import { longFormatters } from "date-fns";
 import { db } from "@/lib/drizzle";
-import { communityTable, modUsersToCommunities } from "../../drizzle/schema";
+import { communityMods, communityTable } from "../../drizzle/schema";
 
 export type CommunityWithMods = Community & {
   moderators: User[];
@@ -54,9 +54,9 @@ export async function createCommunity(data: communityDto) {
     })
     .returning();
 
-  await db.insert(modUsersToCommunities).values({
-    communityId: community.id,
-    userId: profile.id,
+  await db.insert(communityMods).values({
+    a: community.id,
+    b: profile.id,
   });
 
   return community.name;

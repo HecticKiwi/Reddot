@@ -1,16 +1,16 @@
 "use server";
 
+import { db } from "@/lib/drizzle";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/prisma/profile";
-import { User } from "@prisma/client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { User, userTable } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export async function isUsernameAvailable(username: string) {
-  const user = await prisma.user.findFirst({
-    where: {
-      username,
-    },
+  const user = await db.query.userTable.findFirst({
+    where: eq(userTable.username, username),
   });
 
   return !user;
@@ -19,12 +19,10 @@ export async function isUsernameAvailable(username: string) {
 export async function updateProfile(data: Partial<User>) {
   const user = await getCurrentUser();
 
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data,
-  });
+  const [updatedUser] = await db
+    .update(userTable)
+    .set(data)
+    .where(eq(userTable.id, user.id));
 
   return updatedUser;
 }

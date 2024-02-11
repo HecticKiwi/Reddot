@@ -1,13 +1,17 @@
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { Community, Prisma, User as PrismaUser } from "@prisma/client";
 import { GitHub, Google } from "arctic";
 import { Lucia, Session, User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { sessionTable, userTable } from "../../drizzle/schema";
 import { db } from "./drizzle";
 import { and, eq } from "drizzle-orm";
+import {
+  Community,
+  session,
+  userTable,
+  User as DrizzleUser,
+} from "../../drizzle/schema";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,
@@ -21,16 +25,15 @@ export const google = new Google(
 );
 
 export type UserWithCommunities = User & {
-  communitiesAsMember: Community[];
-  communitiesAsModerator: Community[];
+  communitiesAsMember: {
+    community: Community;
+  }[];
+  communitiesAsModerator: {
+    community: Community;
+  }[];
 };
 
-const userInclude: Prisma.UserInclude = {
-  communitiesAsMember: true,
-  communitiesAsModerator: true,
-};
-
-const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+const adapter = new DrizzlePostgreSQLAdapter(db, session, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -48,7 +51,7 @@ export const lucia = new Lucia(adapter, {
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
-    DatabaseUserAttributes: PrismaUser;
+    DatabaseUserAttributes: DrizzleUser;
   }
 }
 
@@ -66,19 +69,26 @@ export const validateRequest = cache(
       };
     }
 
-    console.time("drizzle");
     const result = await lucia.validateSession(sessionId);
 
     const test = await db.query.userTable.findFirst({
       with: {
-        communitiesAsModerator: true,
+        communitiesAsModerator: {
+          columns: {},
+          with: {
+            community: true,
+          },
+        },
+        communitiesAsMember: {
+          columns: {},
+          with: {
+            community: true,
+          },
+        },
       },
     });
-    //@ts-ignore
-    test.communitiesAsMember = [];
-    result.user = test as unknown as User;
 
-    console.timeEnd("drizzle");
+    result.user = test as unknown as User;
 
     // next.js throws when you attempt to set cookie when rendering page
     try {

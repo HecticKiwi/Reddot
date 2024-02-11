@@ -133,7 +133,6 @@ const Setup = () => {
                 </Button>
               </CardFooter>
             </form>
-            <DevTool control={form.control} />
           </Form>
         </Card>
       </div>

@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { userTable } from "../../../../../../drizzle/schema";
+import { userTable } from "../../../../../../drizzle/schemaasdf";
 
 export async function GET(request: Request): Promise<Response> {
   // Check that url, code, state, and storedState are all valid
@@ -59,8 +59,9 @@ export async function GET(request: Request): Promise<Response> {
     //     email,
     //   },
     // });
+    console.log("s");
 
-    const existingUser = await db.query.userTable.findFirst({
+    const existingUser = await db.query.user.findFirst({
       where: eq(userTable.email, email),
     });
 
