@@ -34,7 +34,7 @@ const Posts = ({
     useGetPosts({
       type,
       id,
-      orderBy: orderBy,
+      orderBy,
       initialPosts: orderBy === "new" ? initialPosts : undefined,
     });
 

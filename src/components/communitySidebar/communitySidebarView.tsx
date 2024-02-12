@@ -6,7 +6,7 @@ import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 
 const CommunitySidebarView = ({
-  id,
+  communityName,
   header,
   description,
   createdAt,
@@ -14,7 +14,7 @@ const CommunitySidebarView = ({
   inPost,
   className,
 }: {
-  id?: number;
+  communityName?: string;
   header: string;
   description: string;
   createdAt?: Date;
@@ -54,12 +54,15 @@ const CommunitySidebarView = ({
         )}
       </div>
 
-      {id && (
+      {communityName && (
         <>
           <Separator className="my-4" />
 
           <Button asChild>
-            <Link href={`/submit?communityId=${id}`} className="w-full">
+            <Link
+              href={`/submit?communityId=${communityName}`}
+              className="w-full"
+            >
               Create Post
             </Link>
           </Button>

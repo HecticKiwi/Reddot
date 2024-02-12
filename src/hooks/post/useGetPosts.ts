@@ -18,7 +18,7 @@ export const useGetPosts = ({
     queryFn: ({ pageParam }) =>
       getPosts({ type, name: id, pageParam, orderBy }),
     getNextPageParam: (lastPage, pages) => {
-      return lastPage.length > 0 ? lastPage[lastPage.length - 1].id : undefined;
+      return lastPage.length > 0 ? pages.length : undefined;
     },
     initialPageParam: 0,
     initialData: initialPosts && {

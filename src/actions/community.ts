@@ -117,15 +117,13 @@ export async function getPosts({
 }) {
   const user = await getCurrentUserOrThrow();
 
-  const take = 5;
+  const take = 2;
 
   const communitiesAsMemberIds = user.communitiesAsMember.map(
     (community) => community.community.name,
   );
 
   let where: any = eq(postTable.removed, false);
-
-  if (pageParam) [(where = and(where, gt(postTable.id, pageParam)))];
 
   if (type === "user") {
     if (id === null) {
@@ -150,7 +148,7 @@ export async function getPosts({
   const orderBy =
     orderByType === "new"
       ? [desc(postTable.createdAt)]
-      : [desc(postTable.score)];
+      : [desc(postTable.score), desc(postTable.createdAt)];
 
   const posts = (
     await db.query.postTable.findMany({
@@ -169,6 +167,7 @@ export async function getPosts({
         },
       },
       limit: take,
+      offset: pageParam ? pageParam * take : undefined,
     })
   ).map((post) => ({
     ...post,

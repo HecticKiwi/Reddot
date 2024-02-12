@@ -20,7 +20,7 @@ const CommunitySidebar = async ({
 
   return (
     <CommunitySidebarView
-      id={community.id}
+      communityName={community.name}
       header={inPost ? `r/${community.name}` : "About Community"}
       description={community.description}
       createdAt={community.createdAt}

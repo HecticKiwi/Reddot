@@ -56,7 +56,7 @@ const CommentForm = ({
     content: "",
     placeholder: "What are your thoughts?",
     onChange: (content) => {
-      form.setValue("content", content);
+      form.setValue("content", content.trim());
     },
     limit,
   });
@@ -65,7 +65,10 @@ const CommentForm = ({
     content: z
       .string()
       .max(limit)
-      .refine(() => editor?.state.doc.textContent, "Comment cannot be empty."),
+      .refine(
+        () => editor?.state.doc.textContent.trim(),
+        "Comment cannot be empty.",
+      ),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
