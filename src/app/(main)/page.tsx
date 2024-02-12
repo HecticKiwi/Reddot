@@ -1,7 +1,7 @@
 import { getPosts } from "@/actions/community";
 import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 import Link from "next/link";
 import SortTabs from "@/components/sortTabs";
 import Posts, { OrderBy } from "./r/[communityId]/_components/posts";
@@ -20,7 +20,7 @@ const MainPage = async ({
 
   const initialPosts = await getPosts({
     type: "user",
-    id: null,
+    name: null,
     orderBy,
   });
 

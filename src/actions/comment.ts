@@ -1,28 +1,12 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { getCommentsForPost } from "@/prisma/comment";
-import { getCurrentUser } from "@/prisma/profile";
-import { Prisma } from "@prisma/client";
+import { getCommentsForPost } from "@/server/comment";
+import { getCurrentUser } from "@/server/profile";
 import { Score } from "./post";
+import { db } from "@/lib/drizzle";
+import { commentTable } from "../../drizzle/schema";
 
-const commentWithAuthor = Prisma.validator<Prisma.CommentDefaultArgs>()({
-  include: {
-    author: true,
-  },
-});
-
-export type CommentWithAuthor = Prisma.CommentGetPayload<
-  typeof commentWithAuthor
->;
-
-export type PopulatedComment = CommentWithAuthor & {
-  childComments: PopulatedComment[];
-  userScore: Score;
-  fromPostAuthor: boolean;
-};
-
-export async function getCommentsForPostAction({ postId }: { postId: string }) {
+export async function getCommentsForPostAction({ postId }: { postId: number }) {
   return await getCommentsForPost({ postId });
 }
 
@@ -31,20 +15,21 @@ export async function commentOnPost({
   parentCommentId,
   content,
 }: {
-  postId: string;
-  parentCommentId?: string;
+  postId: number;
+  parentCommentId?: number;
   content: string;
 }) {
   const profile = await getCurrentUser();
 
-  const comment = await prisma.comment.create({
-    data: {
-      authorId: profile.id,
-      postId,
+  const comment = await db
+    .insert(commentTable)
+    .values({
+      authorName: profile.username,
+      postId: postId,
       parentCommentId,
       content,
-    },
-  });
+    })
+    .returning();
 
   return comment;
 }

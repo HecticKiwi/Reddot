@@ -14,7 +14,7 @@ const CommunitySidebarView = ({
   inPost,
   className,
 }: {
-  id?: string;
+  id?: number;
   header: string;
   description: string;
   createdAt?: Date;

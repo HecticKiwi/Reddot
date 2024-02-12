@@ -1,61 +1,28 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/prisma/profile";
-import { communityDto } from "@/schemas/community";
-import { Community, Prisma, User } from "@prisma/client";
-import { revalidatePath } from "next/cache";
-import { Score } from "./post";
-import { longFormatters } from "date-fns";
 import { db } from "@/lib/drizzle";
+import { getCurrentUser } from "@/server/profile";
+import { communityDto } from "@/schemas/community";
+import { and, desc, eq, gt, ilike, inArray } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import {
   communityMods,
   communityTable,
+  communityToUser,
   postTable,
   voteTable,
 } from "../../drizzle/schema";
-import { SQL, and, desc, eq, getTableColumns, gt, inArray } from "drizzle-orm";
-import { PgTableWithColumns } from "drizzle-orm/pg-core";
-
-export type CommunityWithMods = Community & {
-  moderators: User[];
-};
-
-export type CommunityThing = Partial<Community> & {
-  image: File | null;
-};
 
 export async function isCommunityNameAvailable(name: string) {
   const community = await db.query.communityTable.findFirst({
     where: eq(communityTable.name, name),
   });
-  // const community = await prisma.community.findUnique({
-  //   where: {
-  //     name,
-  //   },
-  // });
 
   return !community;
 }
 
 export async function createCommunity(data: communityDto) {
   const profile = await getCurrentUser();
-
-  // const community = await prisma.community.create({
-  //   data: {
-  //     ...data,
-  //     moderators: {
-  //       connect: {
-  //         id: profile.id,
-  //       },
-  //     },
-  //     members: {
-  //       connect: {
-  //         id: profile.id,
-  //       },
-  //     },
-  //   },
-  // });
 
   const [community] = await db
     .insert(communityTable)
@@ -65,28 +32,25 @@ export async function createCommunity(data: communityDto) {
     .returning();
 
   await db.insert(communityMods).values({
-    a: community.id,
-    b: profile.id,
+    communityName: data.name,
+    userId: profile.id,
+  });
+
+  await db.insert(communityToUser).values({
+    communityName: data.name,
+    userId: profile.id,
   });
 
   return community.name;
 }
 
-export async function searchCommunitiesByName(
-  name: string,
-): Promise<Community[]> {
+export async function searchCommunitiesByName(name: string) {
   if (!name) {
     return [];
   }
 
-  return await prisma.community.findMany({
-    where: {
-      name: {
-        contains: name,
-        mode: "insensitive",
-      },
-    },
-    take: 10,
+  return await db.query.communityTable.findMany({
+    where: ilike(communityTable.name, `%${name}%`),
   });
 }
 
@@ -97,136 +61,119 @@ export async function updateCommunity({
   communityId: string;
   data: Partial<communityDto>;
 }) {
-  const community = await prisma.community.update({
-    where: {
-      name: communityId,
-    },
-    data,
-  });
+  const community = await db
+    .update(communityTable)
+    .set(data)
+    .where(eq(communityTable.name, communityId));
 
   return community;
 }
 
 export async function joinOrLeaveCommunity({
-  communityId,
+  communityName,
 }: {
-  communityId: string;
+  communityName: string;
 }) {
   const profile = await getCurrentUser();
 
-  const where: Prisma.UserWhereUniqueInput = {
-    id: profile.id,
-    communitiesAsMember: {
-      some: {
-        id: communityId,
-      },
-    },
-  };
-
-  const hasJoined = await prisma.user.findUnique({
-    where,
+  const existingMembership = await db.query.communityToUser.findFirst({
+    where: and(
+      eq(communityToUser.userId, profile.id),
+      eq(communityToUser.communityName, communityName),
+    ),
   });
 
-  if (hasJoined) {
-    await prisma.user.update({
-      where,
-      data: {
-        communitiesAsMember: {
-          disconnect: {
-            id: communityId,
-          },
-        },
-      },
-    });
+  if (existingMembership) {
+    await db
+      .delete(communityToUser)
+      .where(
+        and(
+          eq(communityToUser.userId, profile.id),
+          eq(communityToUser.communityName, communityName),
+        ),
+      );
   } else {
-    await prisma.user.update({
-      where: {
-        id: profile.id,
-      },
-      data: {
-        communitiesAsMember: {
-          connect: {
-            id: communityId,
-          },
-        },
-      },
+    await db.insert(communityToUser).values({
+      userId: profile.id,
+      communityName: communityName,
     });
   }
 
   revalidatePath("/");
 
-  return !hasJoined;
+  return !existingMembership;
 }
 
 export async function getPosts({
   type,
-  id,
+  name: id,
   pageParam,
   orderBy: orderByType,
 }: {
   type: "user" | "community";
-  id: number | null;
+  name: string | null;
   pageParam?: number;
   orderBy: "new" | "top";
 }) {
   const user = await getCurrentUser();
 
-  console.log(id);
-
   const take = 5;
 
   const communitiesAsMemberIds = user.communitiesAsMember.map(
-    (community) => community.community.id,
+    (community) => community.community.name,
   );
 
-  let newWhere: any = eq(postTable.removed, false);
+  let where: any = eq(postTable.removed, false);
 
-  if (pageParam) [(newWhere = and(newWhere, gt(postTable.id, pageParam)))];
-
-  const community = await db.query.communityTable.findFirst({
-    where: eq(communityTable.name, id),
-  });
+  if (pageParam) [(where = and(where, gt(postTable.id, pageParam)))];
 
   if (type === "user") {
     if (id === null) {
       if (communitiesAsMemberIds.length > 0) {
-        newWhere = and(newWhere, inArray(postTable.id, communitiesAsMemberIds));
+        where = and(
+          where,
+          inArray(postTable.communityName, communitiesAsMemberIds),
+        );
       } else {
         return [];
       }
     } else {
-      newWhere = and(newWhere, eq(postTable.authorId, id));
+      where = and(where, eq(postTable.authorName, id));
     }
   } else {
     if (id === null) {
     } else {
-      newWhere = and(newWhere, eq(postTable.communityId, id));
-      // HERE
+      where = and(where, eq(postTable.communityName, id));
     }
   }
 
-  const newOrderBy =
+  const orderBy =
     orderByType === "new"
       ? [desc(postTable.createdAt)]
       : [desc(postTable.score)];
 
-  const posts2 = await db.query.postTable.findMany({
-    where: newWhere,
-    orderBy: newOrderBy,
-    with: {
-      author: true,
-      community: true,
-      comments: {
-        columns: {
-          id: true,
+  const posts = (
+    await db.query.postTable.findMany({
+      where,
+      orderBy,
+      with: {
+        author: true,
+        community: true,
+        comments: {
+          columns: {
+            id: true,
+          },
+        },
+        votes: {
+          where: eq(voteTable.userId, user.id),
         },
       },
-      votes: {
-        where: eq(voteTable.id, user.id),
-      },
-    },
-    limit: take,
-  });
+      limit: take,
+    })
+  ).map((post) => ({
+    ...post,
+    userScore: post.votes[0]?.value || 0,
+  }));
 
-  return posts2;
+  return posts;
 }

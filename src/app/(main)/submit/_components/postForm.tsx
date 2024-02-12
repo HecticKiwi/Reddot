@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useCreatePost } from "@/hooks/post/useCreatePost";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 import { postSchema, postSchemaType } from "@/schemas/post";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Community } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { Community } from "../../../../../drizzle/schema";
 
 const PostForm = ({
   profile: user,
@@ -34,7 +34,7 @@ const PostForm = ({
   const form = useForm<postSchemaType>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      communityId: community?.id,
+      communityName: community?.name,
       title: "",
       content: "",
       mediaUrl: "",
@@ -55,18 +55,18 @@ const PostForm = ({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="communityId"
+                name="communityName"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Community</FormLabel>
-                    {/* <CommunitySearch
+                    <CommunitySearch
                       user={user}
-                      onChange={(communityId) => {
-                        field.onChange(communityId);
-                        router.push(`?communityId=${communityId}`);
+                      onChange={(communityName) => {
+                        field.onChange(communityName);
+                        router.push(`?communityId=${communityName}`);
                       }}
                       community={community}
-                    /> */}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

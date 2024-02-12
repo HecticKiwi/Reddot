@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 import { Rocket } from "lucide-react";
 import AboutForm from "./_components/aboutForm";
 

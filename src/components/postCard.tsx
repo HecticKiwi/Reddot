@@ -14,7 +14,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PostActions from "./postActions";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser, getProfile } from "@/server/profile";
 import {
   useQuery,
   useMutation,
@@ -30,9 +30,9 @@ const PostCard = ({
   inCommunity,
   preview,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentUser>>;
+  profile: Awaited<ReturnType<typeof getProfile>>;
   initialPost?: Awaited<ReturnType<typeof getPostById>>;
-  postId: string;
+  postId: number;
   inCommunity?: boolean;
   preview?: boolean;
 }) => {
@@ -52,6 +52,8 @@ const PostCard = ({
         <aside className="flex flex-col items-center gap-1 bg-muted p-4 text-center">
           <VoteButtons
             postId={post.id}
+            commentId={null}
+            authorName={post.authorName}
             userVote={post.userScore}
             score={post.score}
           />

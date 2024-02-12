@@ -1,14 +1,22 @@
 import { github, lucia } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { db } from "@/lib/drizzle";
 import { OAuth2RequestError } from "arctic";
 import { cookies } from "next/headers";
+import { userTable } from "../../../../../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(request: Request): Promise<Response> {
   // Check that url, code, state, and storedState are all valid
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
+
   const storedState = cookies().get("github_oauth_state")?.value ?? null;
+  console.log(url);
+  console.log(code);
+  console.log(state);
+  console.log(storedState);
+
   if (!code || !state || !storedState || state !== storedState) {
     return new Response("Missing OAuth details", {
       status: 400,
@@ -47,15 +55,13 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: primaryEmail.email,
-      },
+    const existingUser = await db.query.userTable.findFirst({
+      where: eq(userTable.email, primaryEmail.email),
     });
 
     // If user is found, create session
     if (existingUser) {
-      const session = await lucia.createSession(existingUser.id, {});
+      const session = await lucia.createSession(existingUser.id.toString(), {});
       const sessionCookie = lucia.createSessionCookie(session.id);
       cookies().set(
         sessionCookie.name,
@@ -72,26 +78,16 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Otherwise, create user and OAuth account
-    const user = await prisma.user.create({
-      data: {
-        username: "",
+    const [user] = await db
+      .insert(userTable)
+      .values({
+        username: `_${crypto.randomUUID()}`,
         email: primaryEmail.email,
         avatarUrl: githubUser.avatar_url,
-      },
-      select: {
-        id: true,
-      },
-    });
+      })
+      .returning();
 
-    // const account = await prisma.oAuthAccount.create({
-    //   data: {
-    //     providerId: Provider.GITHUB,
-    //     providerUserId: githubUser.id.toString(),
-    //     userId: user.id,
-    //   },
-    // });
-
-    const session = await lucia.createSession(user.id, {});
+    const session = await lucia.createSession(user.id.toString(), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(
       sessionCookie.name,

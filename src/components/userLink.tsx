@@ -6,7 +6,7 @@ import {
 import UserCard from "./userCard";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { User } from "@prisma/client";
+import { User } from "../../drizzle/schema";
 
 const UserLink = ({
   profile,

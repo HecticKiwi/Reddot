@@ -3,7 +3,7 @@
 import { getPosts } from "@/actions/community";
 import { useGetPosts } from "@/hooks/post/useGetPosts";
 import { cn } from "@/lib/utils";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser, getProfile } from "@/server/profile";
 import { Ghost, Loader2 } from "lucide-react";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
@@ -21,7 +21,7 @@ const Posts = ({
   orderBy,
   className,
 }: {
-  user: Awaited<ReturnType<typeof getCurrentUser>>;
+  user: Awaited<ReturnType<typeof getProfile>>;
   type: "user" | "community";
   id: string | null;
   initialPosts?: Awaited<ReturnType<typeof getPosts>>;

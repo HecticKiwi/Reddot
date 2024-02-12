@@ -1,5 +1,5 @@
 import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 import { getPosts } from "@/actions/community";
 import SortTabs from "@/components/sortTabs";
 import Posts, { OrderBy } from "../[communityId]/_components/posts";
@@ -18,7 +18,7 @@ const MainPage = async ({
 
   const initialPosts = await getPosts({
     type: "community",
-    id: null,
+    name: null,
     orderBy,
   });
 

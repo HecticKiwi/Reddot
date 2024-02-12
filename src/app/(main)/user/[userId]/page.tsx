@@ -1,5 +1,5 @@
 import UserCard from "@/components/userCard";
-import { getProfile } from "@/prisma/profile";
+import { getProfile } from "@/server/profile";
 import { redirect } from "next/navigation";
 import Posts, { OrderBy } from "../../r/[communityId]/_components/posts";
 import { getPosts } from "@/actions/community";
@@ -25,7 +25,7 @@ const UserIdPage = async ({
 
   const initialPosts = await getPosts({
     type: "user",
-    id: null,
+    name: null,
     orderBy,
   });
 

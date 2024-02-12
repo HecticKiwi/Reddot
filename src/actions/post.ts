@@ -1,88 +1,64 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/prisma/profile";
+import { db } from "@/lib/drizzle";
+import { getCurrentUser } from "@/server/profile";
 import { postSchemaType } from "@/schemas/post";
-import { Prisma } from "@prisma/client";
+import { postTable, voteTable } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { notFound } from "next/navigation";
 
 export type Score = 1 | 0 | -1;
-export type PostWithUserScore = Prisma.PromiseReturnType<typeof getPostById>;
 
 export async function createPost(data: postSchemaType) {
   const profile = await getCurrentUser();
 
-  const post = await prisma.post.create({
-    data: {
+  const [post] = await db
+    .insert(postTable)
+    .values({
       ...data,
-      authorId: profile.id,
+      authorName: profile.username,
       score: 1,
-    },
-    include: {
-      community: true,
-    },
+    })
+    .returning();
+
+  const vote = await db.insert(voteTable).values({
+    userId: profile.id,
+    postId: post.id,
+    value: 1,
   });
 
-  await prisma.vote.create({
-    data: {
-      targetType: "POST",
-      targetId: post.id,
-      value: 1,
-      user: {
-        connect: {
-          id: profile.id,
-        },
-      },
-    },
-  });
-
-  return { id: post.id, communityName: post.community.name };
+  return { id: post.id, communityName: data.communityName };
 }
 
-export async function getPostById(id: string) {
+export async function getPostById(id: number) {
   const user = await getCurrentUser();
 
-  const postPromise = prisma.post.findUniqueOrThrow({
-    where: {
-      id,
-    },
-    include: {
+  const post = await db.query.postTable.findFirst({
+    where: eq(postTable.id, id),
+    with: {
       author: true,
       community: true,
-      _count: {
-        select: {
-          comment: true,
+      comments: {
+        columns: {
+          id: true,
         },
       },
-    },
-  });
-
-  const userVotePromise = prisma.vote.findUnique({
-    where: {
-      userId_targetType_targetId: {
-        userId: user.id,
-        targetType: "POST",
-        targetId: id,
+      votes: {
+        where: eq(voteTable.userId, user.id),
       },
     },
   });
 
-  const [post, userVote] = await Promise.all([postPromise, userVotePromise]);
+  if (!post) {
+    notFound();
+  }
 
   return {
     ...post,
-    userScore: (userVote?.value as Score) || 0,
+    userScore: (post.votes[0]?.value as Score) || 0,
   };
 }
 
-export async function deletePost(id: string) {
-  const post = await prisma.post.delete({
-    where: {
-      id,
-    },
-    include: {
-      community: true,
-    },
-  });
-
-  return post.community.name;
+export async function deletePost(id: number) {
+  await db.delete(postTable).where(eq(postTable.id, id));
 }

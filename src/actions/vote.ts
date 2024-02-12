@@ -1,105 +1,85 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/prisma/profile";
-import { Prisma, Vote, VoteTarget } from "@prisma/client";
+import { db } from "@/lib/drizzle";
+import { getCurrentUser } from "@/server/profile";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import {
+  commentTable,
+  postTable,
+  userTable,
+  voteTable,
+} from "../../drizzle/schema";
 
 export async function voteOnPostOrComment({
   postId,
   commentId,
+  authorId,
   score,
 }: {
-  postId: string;
-  commentId?: string;
+  postId: number | null;
+  commentId: number | null;
+  authorId: string;
   score: 1 | 0 | -1;
 }) {
   const user = await getCurrentUser();
 
-  const targetType: VoteTarget = commentId ? "COMMENT" : "POST";
-  const targetId = commentId ?? postId;
-
-  const userId_targetType_targetId: Prisma.VoteUserIdTargetTypeTargetIdCompoundUniqueInput =
-    {
-      userId: user.id,
-      targetType,
-      targetId,
-    };
-
-  let vote: Vote | null = null;
-
-  const existingVote = await prisma.vote.findUnique({
-    where: {
-      userId_targetType_targetId,
-    },
+  const existingVote = await db.query.voteTable.findFirst({
+    where: and(
+      eq(voteTable.userId, user.id),
+      postId ? eq(voteTable.postId, postId) : isNull(voteTable.postId),
+      commentId
+        ? eq(voteTable.commentId, commentId)
+        : isNull(voteTable.commentId),
+    ),
   });
 
   const scoreChange = existingVote ? score - existingVote.value : score;
-  const updateConfig: Prisma.PostUpdateArgs | Prisma.CommentUpdateArgs = {
-    where: {
-      id: targetId,
-    },
-    data: {
-      score: {
-        increment: scoreChange,
-      },
-    },
-    select: {
-      authorId: true,
-    },
-  };
 
-  let authorId: string = "";
+  let postCommentPromise;
 
   // Update post/comment score
-  if (targetType === "POST") {
-    const post = await prisma.post.update(
-      updateConfig as Prisma.PostUpdateArgs,
-    );
-    authorId = post.authorId;
-  } else if (targetType === "COMMENT") {
-    const comment = await prisma.comment.update(
-      updateConfig as Prisma.CommentUpdateArgs,
-    );
-    authorId = comment.authorId;
+  if (commentId) {
+    postCommentPromise = db
+      .update(commentTable)
+      .set({
+        score: sql`${commentTable.score} + ${scoreChange}`,
+      })
+      .where(eq(commentTable.id, commentId));
+  } else if (postId) {
+    postCommentPromise = await db
+      .update(postTable)
+      .set({
+        score: sql`${postTable.score} + ${scoreChange}`,
+      })
+      .where(eq(postTable.id, postId))
+      .returning();
   }
 
   // Update author's score
-  await prisma.user.update({
-    where: {
-      id: authorId,
-    },
-    data: {
-      score: {
-        increment: scoreChange,
-      },
-    },
-  });
+  const authorPromise = db
+    .update(userTable)
+    .set({
+      score: sql`${userTable.score} + ${scoreChange}`,
+    })
+    .where(eq(userTable.username, authorId));
 
-  // Upsert or delete the vote
-  if (score !== 0) {
-    // Vote
-    vote = await prisma.vote.upsert({
-      where: {
-        userId_targetType_targetId,
-      },
-      update: {
-        value: score,
-      },
-      create: {
-        userId: user.id,
-        targetType,
-        targetId,
+  // Upsert
+  const votePromise = db
+    .insert(voteTable)
+    .values({
+      userId: user.id,
+      postId,
+      commentId,
+      value: score,
+    })
+    .onConflictDoUpdate({
+      target: [voteTable.userId, voteTable.postId, voteTable.commentId],
+      set: {
         value: score,
       },
     });
-  } else {
-    // Remove vote
-    await prisma.vote.delete({
-      where: {
-        userId_targetType_targetId,
-      },
-    });
-  }
+
+  await Promise.all([postCommentPromise, authorPromise, votePromise]);
 
   return authorId;
 }

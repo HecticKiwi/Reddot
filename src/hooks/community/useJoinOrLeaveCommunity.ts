@@ -10,7 +10,7 @@ export const useJoinOrLeaveCommunity = ({
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => joinOrLeaveCommunity({ communityId }),
+    mutationFn: () => joinOrLeaveCommunity({ communityName: communityId }),
     mutationKey: ["joinOrLeaveCommunity", communityId],
     onSettled() {},
     onSuccess: (data: boolean) => {

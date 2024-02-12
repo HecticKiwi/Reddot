@@ -1,17 +1,17 @@
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { GitHub, Google } from "arctic";
-import { Lucia, Session, User } from "lucia";
+import { Lucia, Session } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
-
-import { db } from "./drizzle";
-import { and, eq } from "drizzle-orm";
 import {
   Community,
-  session,
-  userTable,
   User as DrizzleUser,
+  User,
+  sessionTable,
+  userTable,
 } from "../../drizzle/schema";
+import { db } from "./drizzle";
+import { eq } from "drizzle-orm";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,
@@ -33,10 +33,10 @@ export type UserWithCommunities = User & {
   }[];
 };
 
-// note here
+// Cast to any so I can use some different column types...
 const adapter = new DrizzlePostgreSQLAdapter(
   db,
-  session as any,
+  sessionTable as any,
   userTable as any,
 );
 
@@ -44,7 +44,7 @@ export const lucia = new Lucia(adapter, {
   sessionCookie: {
     expires: false,
     attributes: {
-      // set to `true` when using HTTPS
+      // Set to `true` when using HTTPS
       secure: process.env.NODE_ENV === "production",
     },
   },
@@ -75,27 +75,6 @@ export const validateRequest = cache(
     }
 
     const result = await lucia.validateSession(sessionId);
-
-    console.time("hi");
-    const test = await db.query.userTable.findFirst({
-      with: {
-        communitiesAsModerator: {
-          columns: {},
-          with: {
-            community: true,
-          },
-        },
-        communitiesAsMember: {
-          columns: {},
-          with: {
-            community: true,
-          },
-        },
-      },
-    });
-    console.timeEnd("hi");
-
-    result.user = test as unknown as User;
 
     // next.js throws when you attempt to set cookie when rendering page
     try {

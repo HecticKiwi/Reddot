@@ -20,7 +20,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useDeletePost } from "@/hooks/post/useDeletePost";
 import { cn } from "@/lib/utils";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser, getProfile } from "@/server/profile";
 import { LinkIcon, MessageSquare, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,7 +30,7 @@ const PostActions = ({
   post,
   preview,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentUser>>;
+  profile: Awaited<ReturnType<typeof getProfile>>;
   post: Awaited<ReturnType<typeof getPostById>>;
   preview?: boolean;
 }) => {
@@ -42,7 +42,7 @@ const PostActions = ({
     return null;
   }
 
-  const isOwner = post.authorId === profile.id;
+  const isOwner = post.authorName === profile.username;
 
   return (
     <>
@@ -57,7 +57,7 @@ const PostActions = ({
           }
         >
           <MessageSquare className="h-4 w-4" />
-          <span>{post._count.comment} comments</span>
+          <span>{post.comments.length} comments</span>
         </Button>
         <Button
           variant={"ghost"}
@@ -122,9 +122,9 @@ const PostActions = ({
               </Button>
               <Button
                 onClick={async () => {
-                  const communityName = await deleteMutation.mutateAsync();
+                  await deleteMutation.mutateAsync();
                   setIsDialogOpen(false);
-                  router.push(`/r/${communityName}`);
+                  router.push(`/r/${post.communityName}`);
                 }}
                 disabled={deleteMutation.isPending}
               >

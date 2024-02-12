@@ -1,25 +1,25 @@
 "use client";
 
+import { Score, getPostById } from "@/actions/post";
 import { voteOnPostOrComment } from "@/actions/vote";
 import { cn } from "@/lib/utils";
-import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
-import { startTransition, useOptimistic } from "react";
+import { getCommentsForPost } from "@/server/comment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCurrentUser } from "@/prisma/profile";
 import { produce } from "immer";
-import { getPostById } from "@/actions/post";
+import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
 import { toast } from "./ui/use-toast";
-import { getCommentsForPost } from "@/prisma/comment";
 
 const VoteButtons = ({
   postId,
   commentId,
+  authorName: authorId,
   userVote,
   score,
   orientation,
 }: {
-  postId: string;
-  commentId?: string;
+  postId: number | null;
+  commentId: number | null;
+  authorName: string;
   userVote: number;
   score: number;
   orientation?: "vertical" | "horizontal";
@@ -27,8 +27,13 @@ const VoteButtons = ({
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (score: 0 | 1 | -1) =>
-      voteOnPostOrComment({ postId, commentId, score }),
+    mutationFn: (score: Score) =>
+      voteOnPostOrComment({
+        postId: !commentId ? postId : null,
+        commentId,
+        authorId,
+        score,
+      }),
 
     onMutate(newVote) {
       const voteChange = newVote - userVote;
@@ -72,8 +77,6 @@ const VoteButtons = ({
 
   const vote = async (vote: 1 | -1) => {
     const newVote = userVote !== vote ? vote : 0;
-    const voteChange = newVote - userVote;
-
     await mutation.mutateAsync(newVote);
   };
 

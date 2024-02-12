@@ -3,8 +3,8 @@ import CircleImage from "@/components/circleImage";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
 import SortTabs from "@/components/sortTabs";
 import { Button } from "@/components/ui/button";
-import { getCommunityById } from "@/prisma/community";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCommunityById } from "@/server/community";
+import { getCurrentUser } from "@/server/profile";
 import Link from "next/link";
 import JoinButton from "./_components/joinButton";
 import Posts, { OrderBy } from "./_components/posts";
@@ -28,7 +28,7 @@ export default async function CommunityPage({
 
   const initialPostsPromise = getPosts({
     type: "community",
-    id: params.communityId,
+    name: params.communityId,
     orderBy,
   });
 
@@ -38,13 +38,12 @@ export default async function CommunityPage({
     initialPostsPromise,
   ]);
 
-  console.log("asdf");
   if (!community) {
     notFound();
   }
 
   const isModerating = community.moderators.some(
-    (moderator) => moderator.id === user.id,
+    (moderator) => moderator.userId === user.id,
   );
 
   return (
@@ -63,7 +62,7 @@ export default async function CommunityPage({
 
           {/* Buttons */}
           <div className="mt-2 flex gap-4">
-            <JoinButton profile={user} communityId={community.id} />
+            <JoinButton profile={user} communityId={community.name} />
 
             {isModerating && (
               <Button size={"sm"} className="h-auto gap-1 px-2 py-1 text-xs">
@@ -77,7 +76,7 @@ export default async function CommunityPage({
       </div>
 
       <CommunitySidebar
-        communityId={params.communityId}
+        communityName={params.communityId}
         className="my-6 w-full  md:hidden"
       />
 
@@ -94,7 +93,7 @@ export default async function CommunityPage({
         </div>
 
         <CommunitySidebar
-          communityId={params.communityId}
+          communityName={params.communityId}
           className="hidden md:block"
         />
       </div>

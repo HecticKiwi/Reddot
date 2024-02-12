@@ -1,14 +1,8 @@
 import Header from "@/components/header";
 import Setup from "@/components/setup";
-import "@/css/clerk.css";
-import "@/css/globals.css";
-import "@/css/tiptap.css";
-import { validateRequest } from "@/lib/auth";
-import {
-  getCurrentUser,
-  initialProfile as initialUser,
-} from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Reddot",
@@ -20,9 +14,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await initialUser();
+  const user = await getCurrentUser();
 
-  if (!user?.username) {
+  if (!user) {
+    return redirect("/login");
+  }
+
+  // In the OAuth callback, new users are created with a random username starting with "_"
+  // so it can be set here
+  if (user.username.startsWith("_")) {
     return <Setup />;
   }
 

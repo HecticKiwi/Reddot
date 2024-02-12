@@ -11,9 +11,9 @@ import {
 import { Heart, LogOut, Settings, UserIcon } from "lucide-react";
 import Link from "next/link";
 import CircleImage from "./circleImage";
-import { User } from "@prisma/client";
 import { logout } from "@/actions/auth";
 import { Button } from "./ui/button";
+import { User } from "../../drizzle/schema";
 
 const CustomUserButton = ({ user }: { user: User }) => {
   return (

@@ -16,11 +16,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { uploadFile } from "@/lib/image";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { User } from "../../../../../drizzle/schema";
 
 const MAX_IMAGE_SIZE = 0.5 * 1024 * 1024; // 512 KB
 

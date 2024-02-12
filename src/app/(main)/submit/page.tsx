@@ -1,8 +1,8 @@
-import { Community } from "@prisma/client";
 import PostForm from "./_components/postForm";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
-import { getCommunityById } from "@/prisma/community";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCommunityById } from "@/server/community";
+import { getCurrentUser } from "@/server/profile";
+import { Community } from "../../../../drizzle/schema";
 
 export default async function NewPostPage({
   searchParams,
@@ -14,7 +14,7 @@ export default async function NewPostPage({
   let community: Community | null = null;
 
   if (searchParams?.communityId) {
-    community = await getCommunityById(communityId);
+    community = (await getCommunityById(communityId)) || null;
   }
 
   return (
@@ -25,7 +25,7 @@ export default async function NewPostPage({
         <PostForm profile={profile} community={community} />
         {community && (
           <CommunitySidebar
-            communityId={communityId}
+            communityName={communityId}
             className="hidden md:block"
           />
         )}

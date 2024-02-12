@@ -1,5 +1,6 @@
 "use client";
 
+import { isUsernameAvailable, updateProfile } from "@/actions/profile";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,16 +19,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useMounted from "@/hooks/useMounted";
-import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useIsClient } from "@uidotdev/usehooks";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "./ui/use-toast";
-import { Loader2 } from "lucide-react";
-import { isUsernameAvailable, updateProfile } from "@/actions/profile";
 
 const formSchema = z.object({
   username: z
@@ -44,7 +43,7 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>;
 
 const Setup = () => {
-  const isMounted = useMounted();
+  const isClient = useIsClient();
   const usernameIsUncheckedRef = useRef(false);
   const router = useRouter();
 
@@ -53,7 +52,6 @@ const Setup = () => {
     defaultValues: {
       username: "",
     },
-    mode: "onBlur",
   });
 
   async function onSubmit(values: formSchemaType) {
@@ -76,7 +74,7 @@ const Setup = () => {
     }
   }
 
-  if (!isMounted) {
+  if (!isClient) {
     return null;
   }
 

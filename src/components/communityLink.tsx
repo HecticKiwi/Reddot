@@ -6,8 +6,8 @@ import {
 import UserCard from "./userCard";
 import Link from "next/link";
 import CommunitySidebarView from "./communitySidebar/communitySidebarView";
-import { Community } from "@prisma/client";
 import { cn } from "@/lib/utils";
+import { Community } from "../../drizzle/schema";
 
 const CommunityLink = ({
   community,

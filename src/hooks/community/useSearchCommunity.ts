@@ -1,5 +1,4 @@
 import { searchCommunitiesByName } from "@/actions/community";
-import { Community } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 
 export const useSearchCommunity = ({
@@ -7,7 +6,7 @@ export const useSearchCommunity = ({
 }: {
   searchQuery: string;
 }) => {
-  return useQuery<Community[]>({
+  return useQuery({
     queryKey: ["communitySearch", searchQuery],
     queryFn: () => searchCommunitiesByName(searchQuery),
   });

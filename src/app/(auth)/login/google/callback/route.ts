@@ -1,6 +1,5 @@
 import { google, lucia } from "@/lib/auth";
 import { db } from "@/lib/drizzle";
-import prisma from "@/lib/prisma";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
@@ -54,13 +53,6 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
 
-    // const existingUser = await prisma.user.findUnique({
-    //   where: {
-    //     email,
-    //   },
-    // });
-    console.log("s");
-
     const existingUser = await db.query.userTable.findFirst({
       where: eq(userTable.email, email),
     });
@@ -84,21 +76,11 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     // Otherwise, create user and OAuth account
-    // const user = await prisma.user.create({
-    //   data: {
-    //     username: "",
-    //     email,
-    //     avatarUrl: googleUser.picture,
-    //   },
-    //   select: {
-    //     id: true,
-    //   },
-    // });
 
     const [user] = await db
       .insert(userTable)
       .values({
-        username: "",
+        username: `_${crypto.randomUUID()}`,
         email,
         avatarUrl: googleUser.picture,
       })

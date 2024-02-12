@@ -29,8 +29,8 @@ const CommentForm = ({
   onSubmit,
   className,
 }: {
-  postId: string;
-  parentCommentId?: string;
+  postId: number;
+  parentCommentId?: number;
   onSubmit?: () => void;
   className?: string;
 }) => {
@@ -43,7 +43,7 @@ const CommentForm = ({
       queryClient.setQueryData(
         ["posts", postId],
         produce((oldPost: Awaited<ReturnType<typeof getPostById>>) => {
-          oldPost._count.comment++;
+          oldPost.comments.push({ id: -1 });
         }),
       );
     },

@@ -5,7 +5,6 @@ import {
   isCommunityNameAvailable,
   updateCommunity,
 } from "@/actions/community";
-import CircleImage from "@/components/circleImage";
 import ImageInput from "@/components/imageInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,15 +22,12 @@ import { toast } from "@/components/ui/use-toast";
 import { uploadFile } from "@/lib/image";
 import { communitySchema, communitySchemaType } from "@/schemas/community";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Community } from "@prisma/client";
-import { Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useRef } from "react";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
+import { Community } from "../../../../../../drizzle/schema";
 
 const CommunityForm = ({ community }: { community?: Community | null }) => {
-  const fileUpload = useRef<HTMLInputElement>(null);
-  const addFileButton = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
   const form = useForm<communitySchemaType>({

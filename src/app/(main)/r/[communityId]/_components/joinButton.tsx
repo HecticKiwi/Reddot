@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useJoinOrLeaveCommunity } from "@/hooks/community/useJoinOrLeaveCommunity";
-import { getCurrentUser } from "@/prisma/profile";
+import { getCurrentUser } from "@/server/profile";
 
 const JoinButton = ({
   profile,
@@ -14,7 +14,7 @@ const JoinButton = ({
   const mutation = useJoinOrLeaveCommunity({ communityId });
 
   const isMember = profile.communitiesAsMember.some(
-    (community) => community.id === communityId,
+    ({ community }) => community.name === communityId,
   );
 
   return (

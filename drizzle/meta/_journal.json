@@ -15,6 +15,13 @@
       "when": 1707622330852,
       "tag": "0001_sticky_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1707692194801,
+      "tag": "0002_windy_red_ghost",
+      "breakpoints": true
     }
   ]
 }

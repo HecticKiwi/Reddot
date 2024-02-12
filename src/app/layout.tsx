@@ -1,15 +1,14 @@
 import Providers from "@/components/providers/providers";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../css/clerk.css";
-import "../css/globals.css";
-import "../css/tiptap.css";
+import "@/css/globals.css";
+import "@/css/tiptap.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Reddot",
-  description: "Reddit's Estranged Cousin",
+  description: "Another Reddit Clone",
 };
 
 export default function RootLayout({

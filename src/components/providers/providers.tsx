@@ -1,5 +1,7 @@
+"use client";
+
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
-import { ThemeProvider } from "@/components/themeProvider";
+import { ThemeProvider } from "@/components/providers/themeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReactNode } from "react";

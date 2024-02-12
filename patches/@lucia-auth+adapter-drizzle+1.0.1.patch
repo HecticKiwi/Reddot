@@ -1,0 +1,60 @@
+diff --git a/node_modules/@lucia-auth/adapter-drizzle/dist/drivers/postgresql.js b/node_modules/@lucia-auth/adapter-drizzle/dist/drivers/postgresql.js
+index 5dd3ec1..e459607 100644
+--- a/node_modules/@lucia-auth/adapter-drizzle/dist/drivers/postgresql.js
++++ b/node_modules/@lucia-auth/adapter-drizzle/dist/drivers/postgresql.js
+@@ -15,19 +15,33 @@ export class DrizzlePostgreSQLAdapter {
+         await this.db.delete(this.sessionTable).where(eq(this.sessionTable.userId, userId));
+     }
+     async getSessionAndUser(sessionId) {
+-        const result = await this.db
+-            .select({
+-            user: this.userTable,
+-            session: this.sessionTable
+-        })
+-            .from(this.sessionTable)
+-            .innerJoin(this.userTable, eq(this.sessionTable.userId, this.userTable.id))
+-            .where(eq(this.sessionTable.id, sessionId));
+-        if (result.length !== 1)
++        const session = await this.db.query.sessionTable.findFirst({
++            where: eq(this.sessionTable.id, sessionId),
++            with: {
++                user: {
++                    with: {
++                        communitiesAsModerator: {
++                            columns: {},
++                            with: {
++                                community: true,
++                            },
++                        },
++                        communitiesAsMember: {
++                            columns: {},
++                            with: {
++                                community: true,
++                            },
++                        },
++                    },
++                },
++            },
++        });
++
++        if (!session)
+             return [null, null];
+         return [
+-            transformIntoDatabaseSession(result[0].session),
+-            transformIntoDatabaseUser(result[0].user)
++            transformIntoDatabaseSession(session),
++            transformIntoDatabaseUser(session.user)
+         ];
+     }
+     async getUserSessions(userId) {
+@@ -51,8 +65,8 @@ export class DrizzlePostgreSQLAdapter {
+         await this.db
+             .update(this.sessionTable)
+             .set({
+-            expiresAt
+-        })
++                expiresAt
++            })
+             .where(eq(this.sessionTable.id, sessionId));
+     }
+     async deleteExpiredSessions() {

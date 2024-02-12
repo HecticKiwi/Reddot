@@ -1,12 +1,9 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/prisma/profile";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { User, userTable } from "../../drizzle/schema";
+import { getCurrentUser } from "@/server/profile";
 import { eq } from "drizzle-orm";
+import { User, userTable } from "../../drizzle/schema";
 
 export async function isUsernameAvailable(username: string) {
   const user = await db.query.userTable.findFirst({

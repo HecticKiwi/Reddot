@@ -1,6 +1,5 @@
 "use client";
 
-import { PopulatedComment } from "@/actions/comment";
 import CircleImage from "@/components/circleImage";
 import TipTap from "@/components/tipTap/tipTap";
 import { Button } from "@/components/ui/button";
@@ -14,12 +13,25 @@ import CommentForm from "./commentForm";
 import UserLink from "@/components/userLink";
 import useTipTap from "@/components/tipTap/useTipTap";
 import TimeSinceNow from "@/components/timeSinceNow";
+import {
+  CommentType,
+  User,
+  Vote,
+} from "../../../../../../../../drizzle/schema";
+
+export type CommentThing = CommentType & {
+  author: User;
+  fromPostAuthor: boolean;
+  votes: Vote[];
+  childComments: CommentThing[];
+  userScore: number;
+};
 
 const Comment = ({
   comment,
   className,
 }: {
-  comment: PopulatedComment;
+  comment: CommentThing;
   className?: string;
 }) => {
   const [expanded, setExpanded] = useState(true);
@@ -82,6 +94,7 @@ const Comment = ({
             <VoteButtons
               postId={comment.postId}
               commentId={comment.id}
+              authorName={comment.authorName}
               userVote={comment.userScore}
               score={comment.score}
               orientation="horizontal"

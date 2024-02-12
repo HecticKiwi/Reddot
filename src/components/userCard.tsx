@@ -3,7 +3,7 @@ import { CakeSlice, Heart } from "lucide-react";
 import CircleImage from "./circleImage";
 import { Separator } from "./ui/separator";
 import { cn } from "@/lib/utils";
-import { User } from "@prisma/client";
+import { User } from "../../drizzle/schema";
 
 const UserCard = ({
   profile,

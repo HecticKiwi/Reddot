@@ -1,44 +1,43 @@
+import { relations } from "drizzle-orm";
 import {
-  pgTable,
+  boolean,
   foreignKey,
+  index,
+  integer,
   pgEnum,
+  pgTable,
+  serial,
   text,
   timestamp,
-  boolean,
-  integer,
+  unique,
   uniqueIndex,
-  serial,
-  index,
   varchar,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
-import { v4ID } from "./schemaasdf";
 
-export const provider = pgEnum("Provider", ["GOOGLE", "GITHUB"]);
-export const voteTarget = pgEnum("VoteTarget", ["COMMENT", "POST"]);
+// export const provider = pgEnum("Provider", ["GOOGLE", "GITHUB"]);
 
-export const oauthAccount = pgTable(
-  "OAuthAccount",
-  {
-    providerId: provider("providerId").notNull(),
-    providerUserId: text("providerUserId").notNull(),
-    userId: integer("userId")
-      .notNull()
-      .references(() => userTable.id, {
-        onDelete: "restrict",
-        onUpdate: "cascade",
-      }),
-  },
-  (table) => {
-    return {
-      providerIdProviderUserIdKey: uniqueIndex(
-        "OAuthAccount_providerId_providerUserId_key",
-      ).on(table.providerId, table.providerUserId),
-    };
-  },
-);
+// export const oauthAccount = pgTable(
+//   "OAuthAccount",
+//   {
+//     providerId: provider("providerId").notNull(),
+//     providerUserId: text("providerUserId").notNull(),
+//     userId: integer("userId")
+//       .notNull()
+//       .references(() => userTable.id, {
+//         onDelete: "restrict",
+//         onUpdate: "cascade",
+//       }),
+//   },
+//   (table) => {
+//     return {
+//       providerIdProviderUserIdKey: uniqueIndex(
+//         "OAuthAccount_providerId_providerUserId_key",
+//       ).on(table.providerId, table.providerUserId),
+//     };
+//   },
+// );
 
-export const session = pgTable("Session", {
+export const sessionTable = pgTable("session", {
   id: varchar("id", {
     length: 255,
   }).primaryKey(),
@@ -51,56 +50,56 @@ export const session = pgTable("Session", {
     mode: "date",
   }).notNull(),
 });
-export type Session = typeof session.$inferSelect;
+export type Session = typeof sessionTable.$inferSelect;
 
-export const sessionRelations = relations(session, ({ one, many }) => ({
+export const sessionRelations = relations(sessionTable, ({ one, many }) => ({
   user: one(userTable, {
-    fields: [session.userId],
+    fields: [sessionTable.userId],
     references: [userTable.id],
   }),
 }));
 
 export const userTable = pgTable(
-  "User",
+  "user",
   {
     id: serial("id").primaryKey().notNull(),
     email: text("email").notNull(),
-    username: text("username").notNull(),
+    username: text("username").notNull().unique(),
     avatarUrl: text("avatarUrl"),
     about: text("about"),
     score: integer("score").default(0).notNull(),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "string" })
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
       .defaultNow()
       .notNull(),
   },
-  (table) => {
+  (t) => {
     return {
-      emailKey: uniqueIndex("User_email_key").on(table.email),
+      emailKey: uniqueIndex("user_email_key").on(t.email),
     };
   },
 );
 export type User = typeof userTable.$inferSelect;
 
 export const userRelations = relations(userTable, ({ one, many }) => ({
-  sessions: many(session),
+  sessions: many(sessionTable),
   communitiesAsModerator: many(communityMods),
   communitiesAsMember: many(communityToUser),
 }));
 
 export const communityTable = pgTable(
-  "Community",
+  "community",
   {
     id: serial("id").primaryKey().notNull(),
-    name: text("name").notNull(),
+    name: text("name").notNull().unique(),
     description: text("description").notNull(),
     imageUrl: text("imageUrl"),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "string" })
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
       .defaultNow()
       .notNull(),
   },
-  (table) => {
+  (t) => {
     return {
-      nameKey: uniqueIndex("Community_name_key").on(table.name),
+      nameKey: uniqueIndex("community_name_key").on(t.name),
     };
   },
 );
@@ -111,56 +110,59 @@ export const communityRelations = relations(communityTable, ({ many }) => ({
   members: many(communityToUser),
 }));
 
-export const postTable = pgTable("Post", {
+export const postTable = pgTable("post", {
   id: serial("id").primaryKey().notNull(),
+
   title: text("title").notNull(),
   content: text("content").notNull(),
   mediaUrl: text("mediaUrl"),
   removed: boolean("removed").default(false).notNull(),
   score: integer("score").default(0).notNull(),
-  authorId: integer("authorId")
-    .notNull()
-    .references(() => userTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  communityId: integer("communityId")
-    .notNull()
-    .references(() => communityTable.id, {
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    }),
-  createdAt: timestamp("createdAt", { precision: 3, mode: "string" })
+
+  createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
     .defaultNow()
     .notNull(),
+
+  authorName: text("authorName")
+    .notNull()
+    .references(() => userTable.username, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  communityName: text("communityName")
+    .notNull()
+    .references(() => communityTable.name, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
 });
 
 export const postRelations = relations(postTable, ({ one, many }) => ({
   author: one(userTable, {
-    fields: [postTable.authorId],
-    references: [userTable.id],
+    fields: [postTable.authorName],
+    references: [userTable.username],
   }),
   community: one(communityTable, {
-    fields: [postTable.communityId],
-    references: [communityTable.id],
+    fields: [postTable.communityName],
+    references: [communityTable.name],
   }),
   comments: many(commentTable),
   votes: many(voteTable),
 }));
 
 export const commentTable = pgTable(
-  "Comment",
+  "comment",
   {
     id: serial("id").primaryKey().notNull(),
     content: text("content").notNull(),
     score: integer("score").default(0).notNull(),
     deleted: boolean("deleted").default(false).notNull(),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "string" })
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
       .defaultNow()
       .notNull(),
-    authorId: integer("authorId")
+    authorName: text("authorId")
       .notNull()
-      .references(() => userTable.id, {
+      .references(() => userTable.username, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
@@ -170,20 +172,21 @@ export const commentTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    parentCommentId: serial("parentId"),
+    parentCommentId: integer("parentId"),
   },
-  (table) => {
+  (t) => {
     return {
       commentParentIdFkey: foreignKey({
-        columns: [table.parentCommentId],
-        foreignColumns: [table.id],
-        name: "Comment_parentId_fkey",
+        columns: [t.parentCommentId],
+        foreignColumns: [t.id],
+        name: "comment_parentId_fkey",
       })
         .onUpdate("cascade")
         .onDelete("cascade"),
     };
   },
 );
+export type CommentType = typeof commentTable.$inferSelect;
 
 export const commentRelations = relations(commentTable, ({ one, many }) => ({
   parentComment: one(commentTable, {
@@ -191,39 +194,46 @@ export const commentRelations = relations(commentTable, ({ one, many }) => ({
     references: [commentTable.id],
   }),
   author: one(userTable, {
-    fields: [commentTable.authorId],
-    references: [userTable.id],
+    fields: [commentTable.authorName],
+    references: [userTable.username],
   }),
   post: one(postTable, {
     fields: [commentTable.postId],
     references: [postTable.id],
   }),
+  votes: many(voteTable),
 }));
 
 export const voteTable = pgTable(
-  "Vote",
+  "vote",
   {
-    id: text("id").primaryKey().notNull(),
+    id: serial("id").primaryKey().notNull(),
     value: integer("value").notNull(),
-    userId: integer("userId")
-      .notNull()
-      .references(() => userTable.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
-    postId: integer("postId"),
-    commentId: integer("commentId"),
-    // targetType: voteTarget("targetType").notNull(),
-    // targetId: text("targetId").notNull(),
+    userId: integer("userId").references(() => userTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    postId: integer("postId").references(() => postTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+    commentId: integer("commentId").references(() => commentTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
   },
-  (table) => {
+  (t) => {
     return {
+      voteUnique: unique("voteUnique")
+        .on(t.userId, t.postId, t.commentId)
+        .nullsNotDistinct(),
       userIdTargetTypeTargetIdKey: uniqueIndex(
-        "Vote_userId_targetType_targetId_key",
-      ).on(table.userId, table.postId, table.commentId),
+        "vote_userId_targetType_targetId_key",
+      ).on(t.userId, t.postId, t.commentId),
     };
   },
 );
+export type Vote = typeof voteTable.$inferSelect;
 
 export const voteRelations = relations(voteTable, ({ one, many }) => ({
   post: one(postTable, {
@@ -239,13 +249,13 @@ export const voteRelations = relations(voteTable, ({ one, many }) => ({
 export const communityMods = pgTable(
   "_communityMods",
   {
-    a: integer("A")
+    communityName: text("communityName")
       .notNull()
-      .references(() => communityTable.id, {
+      .references(() => communityTable.name, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    b: integer("B")
+    userId: integer("userId")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
@@ -254,8 +264,11 @@ export const communityMods = pgTable(
   },
   (table) => {
     return {
-      abUnique: uniqueIndex("_communityMods_AB_unique").on(table.a, table.b),
-      bIdx: index().on(table.b),
+      unique: uniqueIndex("_communityMods_unique").on(
+        table.communityName,
+        table.userId,
+      ),
+      bIdx: index().on(table.userId),
     };
   },
 );
@@ -264,26 +277,26 @@ export const communityModsRelations = relations(
   communityMods,
   ({ one, many }) => ({
     user: one(userTable, {
-      fields: [communityMods.b],
+      fields: [communityMods.userId],
       references: [userTable.id],
     }),
     community: one(communityTable, {
-      fields: [communityMods.a],
-      references: [communityTable.id],
+      fields: [communityMods.communityName],
+      references: [communityTable.name],
     }),
   }),
 );
 
 export const communityToUser = pgTable(
-  "_CommunityToUser",
+  "_communityMembers",
   {
-    a: integer("A")
+    communityName: text("communityName")
       .notNull()
-      .references(() => communityTable.id, {
+      .references(() => communityTable.name, {
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    b: integer("B")
+    userId: integer("userId")
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
@@ -292,8 +305,11 @@ export const communityToUser = pgTable(
   },
   (table) => {
     return {
-      abUnique: uniqueIndex("_CommunityToUser_AB_unique").on(table.a, table.b),
-      bIdx: index().on(table.b),
+      abUnique: uniqueIndex("_communityToUser_unique").on(
+        table.communityName,
+        table.userId,
+      ),
+      bIdx: index().on(table.userId),
     };
   },
 );
@@ -302,12 +318,12 @@ export const communityToUserRelations = relations(
   communityToUser,
   ({ one, many }) => ({
     user: one(userTable, {
-      fields: [communityToUser.b],
+      fields: [communityToUser.userId],
       references: [userTable.id],
     }),
     community: one(communityTable, {
-      fields: [communityToUser.a],
-      references: [communityTable.id],
+      fields: [communityToUser.communityName],
+      references: [communityTable.name],
     }),
   }),
 );

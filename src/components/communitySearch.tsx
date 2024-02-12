@@ -15,13 +15,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSearchCommunity } from "@/hooks/community/useSearchCommunity";
-import { getCurrentUser } from "@/prisma/profile";
-import { Community } from "@prisma/client";
+import { getCurrentUser } from "@/server/profile";
 import { useDebounce } from "@uidotdev/usehooks";
 import { ChevronDown, Home, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CircleImage from "./circleImage";
+import { Community } from "../../drizzle/schema";
 
 const CommunitySearch = ({
   user,
@@ -48,7 +48,7 @@ const CommunitySearch = ({
 
   const handleSelectCommunity = (community: Community | string) => {
     if (onChange && typeof community !== "string") {
-      onChange(community.id);
+      onChange(community.name);
       setSelectedCommunity(community);
     } else if (link) {
       if (typeof community === "string") {
@@ -130,7 +130,7 @@ const CommunitySearch = ({
                 <>
                   {communitiesAsModerator.length > 0 && (
                     <CommandGroup heading="MODERATING">
-                      {communitiesAsModerator.map((community) => (
+                      {communitiesAsModerator.map(({ community }) => (
                         <CommandItem
                           key={"community" + community.id}
                           onSelect={() => handleSelectCommunity(community)}
@@ -150,7 +150,7 @@ const CommunitySearch = ({
                   )}
                   {communitiesAsMember.length > 0 && (
                     <CommandGroup heading="YOUR COMMUNITIES">
-                      {communitiesAsMember.map((community) => (
+                      {communitiesAsMember.map(({ community }) => (
                         <CommandItem
                           key={"yourCommunity" + community.id}
                           onSelect={() => handleSelectCommunity(community)}

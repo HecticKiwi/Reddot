@@ -1,20 +1,14 @@
 "use client";
 
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-import Comment from "./comment";
 import { getCommentsForPostAction } from "@/actions/comment";
+import { useQuery } from "@tanstack/react-query";
+import Comment from "./comment";
 
 const CommentsClient = ({
   postId,
   initialComments,
 }: {
-  postId: string;
+  postId: number;
   initialComments: Awaited<ReturnType<typeof getCommentsForPostAction>>;
 }) => {
   const { data: comments } = useQuery({
@@ -33,10 +27,31 @@ const CommentsClient = ({
     );
   }
 
+  // Format comments array into nested
+  const commentsWithChildren = comments.map((comment) => ({
+    ...comment,
+    childComments: [],
+  }));
+
+  const commentDictionary: { [k: string]: any } = {};
+  for (const comment of commentsWithChildren) {
+    commentDictionary[comment.id] = comment;
+  }
+
+  for (const comment of commentsWithChildren) {
+    if (comment.parentCommentId) {
+      commentDictionary[comment.parentCommentId].childComments.push(comment);
+    }
+  }
+
+  const rootComments = commentsWithChildren.filter(
+    (comment) => comment.parentCommentId === null,
+  );
+
   return (
     <>
       <div className="space-y-4">
-        {comments.map((comment) => (
+        {rootComments.map((comment) => (
           <Comment key={comment.id} comment={comment} />
         ))}
       </div>

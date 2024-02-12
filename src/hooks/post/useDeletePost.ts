@@ -4,7 +4,7 @@ import { postSchemaType } from "@/schemas/post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { title } from "process";
 
-export const useDeletePost = ({ postId }: { postId: string }) => {
+export const useDeletePost = ({ postId }: { postId: number }) => {
   const queryClient = useQueryClient();
 
   return useMutation({
