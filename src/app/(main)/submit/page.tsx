@@ -1,7 +1,7 @@
 import PostForm from "./_components/postForm";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
 import { getCommunityById } from "@/server/community";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { Community } from "../../../../drizzle/schema";
 
 export default async function NewPostPage({
@@ -9,7 +9,7 @@ export default async function NewPostPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
   const communityId = searchParams?.communityId as string;
   let community: Community | null = null;
 

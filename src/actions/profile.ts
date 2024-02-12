@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { eq } from "drizzle-orm";
 import { User, userTable } from "../../drizzle/schema";
 
@@ -14,7 +14,7 @@ export async function isUsernameAvailable(username: string) {
 }
 
 export async function updateProfile(data: Partial<User>) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUserOrThrow();
 
   const [updatedUser] = await db
     .update(userTable)

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { communityDto } from "@/schemas/community";
 import { and, desc, eq, gt, ilike, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -22,7 +22,7 @@ export async function isCommunityNameAvailable(name: string) {
 }
 
 export async function createCommunity(data: communityDto) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const [community] = await db
     .insert(communityTable)
@@ -74,7 +74,7 @@ export async function joinOrLeaveCommunity({
 }: {
   communityName: string;
 }) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const existingMembership = await db.query.communityToUser.findFirst({
     where: and(
@@ -115,7 +115,7 @@ export async function getPosts({
   pageParam?: number;
   orderBy: "new" | "top";
 }) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUserOrThrow();
 
   const take = 5;
 

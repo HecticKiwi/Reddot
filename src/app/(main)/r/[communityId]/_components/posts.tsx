@@ -3,7 +3,7 @@
 import { getPosts } from "@/actions/community";
 import { useGetPosts } from "@/hooks/post/useGetPosts";
 import { cn } from "@/lib/utils";
-import { getCurrentUser, getProfile } from "@/server/profile";
+import { getCurrentUserOrThrow, getProfile } from "@/server/profile";
 import { Ghost, Loader2 } from "lucide-react";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";

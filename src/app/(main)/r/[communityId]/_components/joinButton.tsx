@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { useJoinOrLeaveCommunity } from "@/hooks/community/useJoinOrLeaveCommunity";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 
 const JoinButton = ({
   profile,
   communityId,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentUser>>;
+  profile: Awaited<ReturnType<typeof getCurrentUserOrThrow>>;
   communityId: string;
 }) => {
   const mutation = useJoinOrLeaveCommunity({ communityId });

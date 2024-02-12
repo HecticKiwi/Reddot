@@ -1,7 +1,7 @@
 "use server";
 
 import { getCommentsForPost } from "@/server/comment";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { Score } from "./post";
 import { db } from "@/lib/drizzle";
 import { commentTable } from "../../drizzle/schema";
@@ -19,7 +19,7 @@ export async function commentOnPost({
   parentCommentId?: number;
   content: string;
 }) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const comment = await db
     .insert(commentTable)

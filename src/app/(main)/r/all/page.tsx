@@ -1,5 +1,5 @@
 import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { getPosts } from "@/actions/community";
 import SortTabs from "@/components/sortTabs";
 import Posts, { OrderBy } from "../[communityId]/_components/posts";
@@ -9,7 +9,7 @@ const MainPage = async ({
 }: {
   searchParams: { sort: OrderBy };
 }) => {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const orderBy =
     searchParams.sort === "new" || searchParams.sort === "top"

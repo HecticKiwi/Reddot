@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import {
   commentTable,
@@ -21,7 +21,7 @@ export async function voteOnPostOrComment({
   authorId: string;
   score: 1 | 0 | -1;
 }) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUserOrThrow();
 
   const existingVote = await db.query.voteTable.findFirst({
     where: and(

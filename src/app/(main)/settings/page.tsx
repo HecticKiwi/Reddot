@@ -1,11 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { Rocket } from "lucide-react";
 import AboutForm from "./_components/aboutForm";
 
 const SettingsPage = async () => {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import Link from "next/link";
 import AddButton from "./addButton";
 import CommunitySearch from "./communitySearch";
@@ -6,7 +6,7 @@ import { ThemeSwitcher } from "./themeSwitcher";
 import CustomUserButton from "./userButton";
 
 const Header = async () => {
-  const user = await getCurrentUser();
+  const user = await getCurrentUserOrThrow();
 
   return (
     <>

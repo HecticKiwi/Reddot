@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSearchCommunity } from "@/hooks/community/useSearchCommunity";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { useDebounce } from "@uidotdev/usehooks";
 import { ChevronDown, Home, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ const CommunitySearch = ({
   onChange,
   link,
 }: {
-  user: Awaited<ReturnType<typeof getCurrentUser>>;
+  user: Awaited<ReturnType<typeof getCurrentUserOrThrow>>;
   community?: Community | null;
   onChange?: (newValue: string) => void;
   link?: boolean;

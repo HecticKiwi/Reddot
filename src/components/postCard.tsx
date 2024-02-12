@@ -14,7 +14,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PostActions from "./postActions";
-import { getCurrentUser, getProfile } from "@/server/profile";
+import { getCurrentUserOrThrow, getProfile } from "@/server/profile";
 import {
   useQuery,
   useMutation,

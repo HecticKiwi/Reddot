@@ -2,7 +2,7 @@ import CommunityForm from "./_components/communityForm";
 import { redirect } from "next/navigation";
 import { communitySchemaType } from "@/schemas/community";
 import { toast } from "@/components/ui/use-toast";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { getCommunityById } from "@/server/community";
 import { Long_Cang } from "next/font/google";
 
@@ -13,7 +13,7 @@ export default async function CommunityFormPage({
 }) {
   const communityId = searchParams.communityId as string;
 
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   if (communityId) {
     const community = await getCommunityById(communityId);

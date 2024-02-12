@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { postSchemaType } from "@/schemas/post";
 import { postTable, voteTable } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 export type Score = 1 | 0 | -1;
 
 export async function createPost(data: postSchemaType) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const [post] = await db
     .insert(postTable)
@@ -31,7 +31,7 @@ export async function createPost(data: postSchemaType) {
 }
 
 export async function getPostById(id: number) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUserOrThrow();
 
   const post = await db.query.postTable.findFirst({
     where: eq(postTable.id, id),

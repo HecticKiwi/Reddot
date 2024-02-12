@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useCreatePost } from "@/hooks/post/useCreatePost";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import { postSchema, postSchemaType } from "@/schemas/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ const PostForm = ({
   profile: user,
   community,
 }: {
-  profile: Awaited<ReturnType<typeof getCurrentUser>>;
+  profile: Awaited<ReturnType<typeof getCurrentUserOrThrow>>;
   community?: Community | null;
 }) => {
   const router = useRouter();

@@ -4,7 +4,7 @@ import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
 import SortTabs from "@/components/sortTabs";
 import { Button } from "@/components/ui/button";
 import { getCommunityById } from "@/server/community";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import Link from "next/link";
 import JoinButton from "./_components/joinButton";
 import Posts, { OrderBy } from "./_components/posts";
@@ -17,7 +17,7 @@ export default async function CommunityPage({
   params: { communityId: string };
   searchParams: { sort: OrderBy };
 }) {
-  const profilePromise = getCurrentUser();
+  const profilePromise = getCurrentUserOrThrow();
 
   const communityPromise = getCommunityById(params.communityId);
 

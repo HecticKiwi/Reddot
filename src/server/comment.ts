@@ -3,10 +3,10 @@ import { db } from "@/lib/drizzle";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { commentTable, postTable, voteTable } from "../../drizzle/schema";
-import { getCurrentUser } from "./profile";
+import { getCurrentUserOrThrow } from "./profile";
 
 export async function getCommentsForPost({ postId }: { postId: number }) {
-  const profile = await getCurrentUser();
+  const profile = await getCurrentUserOrThrow();
 
   const post = await db.query.postTable.findFirst({
     where: eq(postTable.id, postId),

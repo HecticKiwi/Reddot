@@ -2,7 +2,7 @@ import { getPostById } from "@/actions/post";
 import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
 import PostCard from "@/components/postCard";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUser } from "@/server/profile";
+import { getCurrentUserOrThrow } from "@/server/profile";
 import CommentForm from "./_components/commentForm";
 import Comments from "./_components/comments";
 
@@ -11,7 +11,7 @@ export default async function PostPage({
 }: {
   params: { postId: string };
 }) {
-  const profilePromise = getCurrentUser();
+  const profilePromise = getCurrentUserOrThrow();
 
   const { postId } = params;
 

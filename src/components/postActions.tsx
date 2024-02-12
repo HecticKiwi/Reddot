@@ -20,7 +20,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useDeletePost } from "@/hooks/post/useDeletePost";
 import { cn } from "@/lib/utils";
-import { getCurrentUser, getProfile } from "@/server/profile";
+import { getCurrentUserOrThrow, getProfile } from "@/server/profile";
 import { LinkIcon, MessageSquare, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
