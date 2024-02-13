@@ -15,8 +15,6 @@
     "@aws-sdk/s3-presigned-post": "^3.485.0",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-drizzle": "^1.0.1",
-    "@lucia-auth/adapter-prisma": "^4.0.0",
-    "@prisma/client": "^5.9.1",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -96,7 +94,6 @@
     "postcss": "^8",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.9",
-    "prisma": "^5.9.1",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
