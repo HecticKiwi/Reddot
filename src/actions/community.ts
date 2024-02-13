@@ -117,7 +117,7 @@ export async function getPosts({
 }) {
   const user = await getCurrentUserOrThrow();
 
-  const take = 2;
+  const take = 10;
 
   const communitiesAsMemberIds = user.communitiesAsMember.map(
     (community) => community.community.name,

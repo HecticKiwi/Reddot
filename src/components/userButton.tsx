@@ -20,7 +20,7 @@ const CustomUserButton = ({ user }: { user: User }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant={"ghost"} className="h-auto gap-2 p-1">
+          <Button variant={"ghost"} className="h-auto gap-2 px-2 py-1">
             <CircleImage
               src={user.avatarUrl}
               alt={user.username}
