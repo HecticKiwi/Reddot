@@ -29,7 +29,7 @@ const CommunityLink = ({
 
       <HoverCardContent className="w-auto border-none p-0 outline-none">
         <CommunitySidebarView
-          id={community.id}
+          communityName={community.name}
           header={"About Community"}
           description={community.description}
           createdAt={community.createdAt}
