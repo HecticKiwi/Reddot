@@ -1,6 +1,6 @@
 "use client";
 
-import { updateProfile } from "@/actions/profile";
+import { updateProfile } from "@/features/user/actions";
 import ImageInput from "@/components/imageInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +52,8 @@ const AboutForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      about: about || undefined,
+      about: about || "",
+      image: null,
     },
     mode: "all",
   });

@@ -1,7 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUserOrThrow } from "@/server/profile";
-import { Rocket } from "lucide-react";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
 import AboutForm from "./_components/aboutForm";
 
 const SettingsPage = async () => {

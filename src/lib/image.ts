@@ -1,4 +1,4 @@
-import { getPresignedPost } from "@/actions/helpers/image";
+import { getPresignedPost } from "@/actions/image";
 
 export async function uploadFile(file: File, folderPath: string) {
   const { url, fields, id } = await getPresignedPost({

@@ -1,7 +1,7 @@
 "use client";
 
-import { commentOnPost } from "@/actions/comment";
-import { getPostById } from "@/actions/post";
+import { commentOnPost } from "@/features/comment/actions";
+import { getPostById } from "@/features/post/actions";
 import TipTap from "@/components/tipTap/tipTap";
 import useTipTap from "@/components/tipTap/useTipTap";
 import { Button } from "@/components/ui/button";

@@ -1,12 +1,8 @@
-"use client";
-
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsClient } from "@uidotdev/usehooks";
 import { format, formatDistanceToNow } from "date-fns";
 
 const TimeSinceNow = ({
@@ -16,15 +12,9 @@ const TimeSinceNow = ({
   date: Date;
   className?: string;
 }) => {
-  const isClient = useIsClient();
-
-  if (!isClient) {
-    return null;
-  }
-
   return (
     <Tooltip delayDuration={200}>
-      <TooltipTrigger className={className}>
+      <TooltipTrigger className={className} suppressHydrationWarning>
         {formatDistanceToNow(date)} ago
       </TooltipTrigger>
       <TooltipContent>

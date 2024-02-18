@@ -1,8 +1,8 @@
-import PostForm from "./_components/postForm";
-import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
-import { getCommunityById } from "@/server/community";
-import { getCurrentUserOrThrow } from "@/server/profile";
+import CommunitySidebar from "@/features/community/components/communitySidebar/communitySidebar";
+import { getCommunityById } from "@/features/community/utils";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
 import { Community } from "../../../../drizzle/schema";
+import PostForm from "./_components/postForm";
 
 export default async function NewPostPage({
   searchParams,

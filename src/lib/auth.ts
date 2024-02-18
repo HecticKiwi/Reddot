@@ -11,7 +11,6 @@ import {
   userTable,
 } from "../../drizzle/schema";
 import { db } from "./drizzle";
-import { eq } from "drizzle-orm";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,

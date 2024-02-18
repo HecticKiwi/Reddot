@@ -1,14 +1,14 @@
-import { getPosts } from "@/actions/community";
+import { getPosts } from "@/features/post/actions";
 import CircleImage from "@/components/circleImage";
-import CommunitySidebar from "@/components/communitySidebar/communitySidebar";
-import SortTabs from "@/components/sortTabs";
+import SortTabs from "@/features/post/components/sortTabs";
 import { Button } from "@/components/ui/button";
-import { getCommunityById } from "@/server/community";
-import { getCurrentUserOrThrow } from "@/server/profile";
+import { getCommunityById } from "@/features/community/utils";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
 import Link from "next/link";
-import JoinButton from "./_components/joinButton";
-import Posts, { OrderBy } from "./_components/posts";
+import Posts, { OrderBy } from "../../../../features/post/components/posts";
 import { notFound } from "next/navigation";
+import CommunitySidebar from "@/features/community/components/communitySidebar/communitySidebar";
+import JoinButton from "@/features/community/components/joinButton";
 
 export default async function CommunityPage({
   params,

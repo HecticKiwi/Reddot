@@ -1,9 +1,9 @@
 import CommunityForm from "./_components/communityForm";
 import { redirect } from "next/navigation";
-import { communitySchemaType } from "@/schemas/community";
+import { communitySchemaType } from "@/features/community/schema";
 import { toast } from "@/components/ui/use-toast";
-import { getCurrentUserOrThrow } from "@/server/profile";
-import { getCommunityById } from "@/server/community";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCommunityById } from "@/features/community/utils";
 import { Long_Cang } from "next/font/google";
 
 export default async function CommunityFormPage({

@@ -1,6 +1,5 @@
 "use client";
 
-import CommunitySearch from "@/components/communitySearch";
 import TipTap from "@/components/tipTap/tipTap";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,9 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useCreatePost } from "@/hooks/post/useCreatePost";
-import { getCurrentUserOrThrow } from "@/server/profile";
-import { postSchema, postSchemaType } from "@/schemas/post";
+import CommunitySearch from "@/features/community/components/communitySearch";
+import { useCreatePost } from "@/features/post/hooks/useCreatePost";
+import { postSchema, postSchemaType } from "@/features/post/schema";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

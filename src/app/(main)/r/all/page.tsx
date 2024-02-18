@@ -1,8 +1,8 @@
-import CommunitySidebarView from "@/components/communitySidebar/communitySidebarView";
-import { getCurrentUserOrThrow } from "@/server/profile";
-import { getPosts } from "@/actions/community";
-import SortTabs from "@/components/sortTabs";
-import Posts, { OrderBy } from "../[communityId]/_components/posts";
+import CommunitySidebarView from "@/features/community/components/communitySidebar/communitySidebarView";
+import { getPosts } from "@/features/post/actions";
+import SortTabs from "@/features/post/components/sortTabs";
+import { getCurrentUserOrThrow } from "@/features/user/utils";
+import Posts, { OrderBy } from "../../../../features/post/components/posts";
 
 const MainPage = async ({
   searchParams,

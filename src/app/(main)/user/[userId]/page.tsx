@@ -1,9 +1,9 @@
-import UserCard from "@/components/userCard";
-import { getProfile } from "@/server/profile";
+import { getPosts } from "@/features/post/actions";
+import SortTabs from "@/features/post/components/sortTabs";
+import UserCard from "@/features/user/components/userCard";
+import { getUser } from "@/features/user/utils";
 import { redirect } from "next/navigation";
-import Posts, { OrderBy } from "../../r/[communityId]/_components/posts";
-import { getPosts } from "@/actions/community";
-import SortTabs from "@/components/sortTabs";
+import Posts, { OrderBy } from "../../../../features/post/components/posts";
 
 const UserIdPage = async ({
   params,
@@ -12,7 +12,7 @@ const UserIdPage = async ({
   params: { userId: string };
   searchParams: { sort: OrderBy };
 }) => {
-  const profile = await getProfile(params.userId);
+  const profile = await getUser(params.userId);
 
   if (!profile) {
     redirect("/");

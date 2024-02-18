@@ -1,6 +1,6 @@
 "use client";
 
-import { isUsernameAvailable, updateProfile } from "@/actions/profile";
+import { isUsernameAvailable, updateProfile } from "@/features/user/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,

@@ -12,10 +12,6 @@ export async function GET(request: Request): Promise<Response> {
   const state = url.searchParams.get("state");
 
   const storedState = cookies().get("github_oauth_state")?.value ?? null;
-  console.log(url);
-  console.log(code);
-  console.log(state);
-  console.log(storedState);
 
   if (!code || !state || !storedState || state !== storedState) {
     return new Response("Missing OAuth details", {

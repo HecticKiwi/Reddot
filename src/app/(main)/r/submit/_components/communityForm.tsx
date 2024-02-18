@@ -4,7 +4,7 @@ import {
   createCommunity,
   isCommunityNameAvailable,
   updateCommunity,
-} from "@/actions/community";
+} from "@/features/community/actions";
 import ImageInput from "@/components/imageInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { uploadFile } from "@/lib/image";
-import { communitySchema, communitySchemaType } from "@/schemas/community";
+import {
+  communitySchema,
+  communitySchemaType,
+} from "@/features/community/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";

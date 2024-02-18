@@ -4,7 +4,6 @@ import {
   foreignKey,
   index,
   integer,
-  pgEnum,
   pgTable,
   serial,
   text,
@@ -13,29 +12,6 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-
-// export const provider = pgEnum("Provider", ["GOOGLE", "GITHUB"]);
-
-// export const oauthAccount = pgTable(
-//   "OAuthAccount",
-//   {
-//     providerId: provider("providerId").notNull(),
-//     providerUserId: text("providerUserId").notNull(),
-//     userId: integer("userId")
-//       .notNull()
-//       .references(() => userTable.id, {
-//         onDelete: "restrict",
-//         onUpdate: "cascade",
-//       }),
-//   },
-//   (table) => {
-//     return {
-//       providerIdProviderUserIdKey: uniqueIndex(
-//         "OAuthAccount_providerId_providerUserId_key",
-//       ).on(table.providerId, table.providerUserId),
-//     };
-//   },
-// );
 
 export const sessionTable = pgTable("session", {
   id: varchar("id", {
