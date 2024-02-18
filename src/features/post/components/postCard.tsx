@@ -2,7 +2,6 @@
 
 import CircleImage from "@/components/circleImage";
 import TimeSinceNow from "@/components/timeSinceNow";
-import TipTap from "@/components/tipTap/tipTap";
 import { Button } from "@/components/ui/button";
 import CommunityLink from "@/features/community/components/communityLink";
 import { getPostById } from "@/features/post/actions";
@@ -100,10 +99,10 @@ const PostCard = ({
           {post.mediaUrl && <MediaPlayer url={post.mediaUrl} className="" />}
           {/* Content */}
           {post.content && (
-            <TipTap
-              className="mt-4"
-              editor={{ content: post.content, readOnly: true }}
-            />
+            <div
+              className="prose prose-sm mt-4 dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            ></div>
           )}
           {/* Bottom actions */}
           <PostActions post={post} preview={preview} profile={profile} />
