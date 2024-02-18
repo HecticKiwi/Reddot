@@ -53,7 +53,6 @@ const AboutForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       about: about || "",
-      image: null,
     },
     mode: "all",
   });
