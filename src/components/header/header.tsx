@@ -1,6 +1,6 @@
 import CommunitySearch from "@/features/community/components/communitySearch";
 import UserButton from "@/features/user/components/userButton";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import Link from "next/link";
 import { ThemeSwitcher } from "../themeSwitcher";
 import AddButton from "./addButton";

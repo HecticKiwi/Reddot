@@ -3,7 +3,7 @@
 import { getPosts } from "@/features/post/actions";
 import { useGetPosts } from "@/features/post/hooks/useGetPosts";
 import { cn } from "@/lib/utils";
-import { getCurrentUserOrThrow, getUser } from "@/features/user/utils";
+import { getCurrentUserOrThrow, getUser } from "@/features/user/server";
 import { Ghost, Loader2 } from "lucide-react";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";

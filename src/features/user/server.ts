@@ -1,3 +1,5 @@
+import "server-only";
+
 import { validateRequest } from "@/lib/auth";
 import { db } from "@/lib/drizzle";
 import { eq } from "drizzle-orm";

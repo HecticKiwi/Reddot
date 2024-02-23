@@ -3,7 +3,7 @@
 import { Score, getPostById } from "@/features/post/actions";
 import { voteOnPostOrComment } from "@/features/vote/actions";
 import { cn } from "@/lib/utils";
-import { getCommentsForPost } from "@/features/comment/utils";
+import { getCommentsForPost } from "@/features/comment/server";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";

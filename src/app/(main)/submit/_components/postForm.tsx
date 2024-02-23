@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import CommunitySearch from "@/features/community/components/communitySearch";
 import { useCreatePost } from "@/features/post/hooks/useCreatePost";
 import { postSchema, postSchemaType } from "@/features/post/schema";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

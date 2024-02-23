@@ -1,6 +1,6 @@
 import CommunitySidebar from "@/features/community/components/communitySidebar/communitySidebar";
-import { getCommunityById } from "@/features/community/utils";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCommunityById } from "@/features/community/server";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import { Community } from "../../../../drizzle/schema";
 import PostForm from "./_components/postForm";
 

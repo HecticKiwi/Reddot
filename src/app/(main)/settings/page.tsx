@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import AboutForm from "./_components/aboutForm";
 
 const SettingsPage = async () => {

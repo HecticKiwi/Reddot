@@ -1,29 +1,32 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
-import { postSchemaType } from "@/features/post/schema";
+import { getCurrentUserOrThrow } from "@/features/user/server";
+import { postSchema, postSchemaType } from "@/features/post/schema";
 import { postTable, voteTable } from "../../../drizzle/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import invariant from "tiny-invariant";
 
 export type Score = 1 | 0 | -1;
 
 export async function createPost(data: postSchemaType) {
-  const profile = await getCurrentUserOrThrow();
+  postSchema.parse(data);
+
+  const user = await getCurrentUserOrThrow();
 
   const post = await db.transaction(async (tx) => {
     const [post] = await tx
       .insert(postTable)
       .values({
         ...data,
-        authorName: profile.username,
+        authorName: user.username,
         score: 1,
       })
       .returning();
 
     const vote = await tx.insert(voteTable).values({
-      userId: profile.id,
+      userId: user.id,
       postId: post.id,
       value: 1,
     });
@@ -35,6 +38,8 @@ export async function createPost(data: postSchemaType) {
 }
 
 export async function getPostById(id: number) {
+  invariant(!isNaN(id), "Expected id to be a number");
+
   const user = await getCurrentUserOrThrow();
 
   const post = await db.query.postTable.findFirst({
@@ -64,12 +69,24 @@ export async function getPostById(id: number) {
 }
 
 export async function deletePost(id: number) {
+  invariant(!isNaN(id), "Expected id to be a number");
+
+  const user = await getCurrentUserOrThrow();
+
+  const post = await db.query.postTable.findFirst({
+    where: eq(postTable.authorName, user.username),
+  });
+
+  if (!post) {
+    throw new Error("You can't delete a post that isn't your own!");
+  }
+
   await db.delete(postTable).where(eq(postTable.id, id));
 }
 
 export async function getPosts({
   type,
-  name: id,
+  name,
   pageParam,
   orderBy: orderByType,
 }: {
@@ -78,6 +95,23 @@ export async function getPosts({
   pageParam?: number;
   orderBy: "new" | "top";
 }) {
+  invariant(
+    type === "user" || type === "community",
+    "Expected type to be 'user' or 'community'",
+  );
+  invariant(
+    typeof name === "string" || name === null,
+    "Expected name to be string or null",
+  );
+  invariant(
+    pageParam === undefined || !isNaN(pageParam),
+    "Expected pageParam to be number",
+  );
+  invariant(
+    orderByType === "new" || orderByType === "top",
+    "Expected type to be 'user' or 'community'",
+  );
+
   const user = await getCurrentUserOrThrow();
 
   const take = 10;
@@ -89,7 +123,7 @@ export async function getPosts({
   let where: any = eq(postTable.removed, false);
 
   if (type === "user") {
-    if (id === null) {
+    if (name === null) {
       if (communitiesAsMemberIds.length > 0) {
         where = and(
           where,
@@ -99,12 +133,12 @@ export async function getPosts({
         return [];
       }
     } else {
-      where = and(where, eq(postTable.authorName, id));
+      where = and(where, eq(postTable.authorName, name));
     }
   } else {
-    if (id === null) {
+    if (name === null) {
     } else {
-      where = and(where, eq(postTable.communityName, id));
+      where = and(where, eq(postTable.communityName, name));
     }
   }
 

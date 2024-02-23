@@ -1,12 +1,14 @@
+import "server-only";
+
 import { Score } from "@/features/post/actions";
 import { db } from "@/lib/drizzle";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { commentTable, postTable, voteTable } from "../../../drizzle/schema";
-import { getCurrentUserOrThrow } from "../user/utils";
+import { getCurrentUserOrThrow } from "../user/server";
 
 export async function getCommentsForPost({ postId }: { postId: number }) {
-  const profile = await getCurrentUserOrThrow();
+  const user = await getCurrentUserOrThrow();
 
   const post = await db.query.postTable.findFirst({
     where: eq(postTable.id, postId),
@@ -16,7 +18,7 @@ export async function getCommentsForPost({ postId }: { postId: number }) {
         with: {
           author: true,
           votes: {
-            where: eq(voteTable.userId, profile.id),
+            where: eq(voteTable.userId, user.id),
           },
         },
       },

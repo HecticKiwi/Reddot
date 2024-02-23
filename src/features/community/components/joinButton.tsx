@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useJoinOrLeaveCommunity } from "@/features/community/hooks/useJoinOrLeaveCommunity";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 
 const JoinButton = ({
   profile,

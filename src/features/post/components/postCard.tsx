@@ -7,7 +7,7 @@ import CommunityLink from "@/features/community/components/communityLink";
 import { getPostById } from "@/features/post/actions";
 import MediaPlayer from "@/features/post/components/mediaPlayer";
 import UserLink from "@/features/user/components/userLink";
-import { getUser } from "@/features/user/utils";
+import { getUser } from "@/features/user/server";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";

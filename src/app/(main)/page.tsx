@@ -1,7 +1,7 @@
 import CommunitySidebarView from "@/features/community/components/communitySidebar/communitySidebarView";
 import { getPosts } from "@/features/post/actions";
 import SortTabs from "@/features/post/components/sortTabs";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import Posts, { OrderBy } from "../../features/post/components/posts";
 
 const MainPage = async ({

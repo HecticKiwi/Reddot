@@ -1,4 +1,4 @@
-import { getCommunityById } from "@/features/community/utils";
+import { getCommunityById } from "@/features/community/server";
 import CommunitySidebarView from "./communitySidebarView";
 import { notFound } from "next/navigation";
 import CommunityLink from "../communityLink";

@@ -1,4 +1,4 @@
-import { getCommentsForPost } from "@/features/comment/utils";
+import { getCommentsForPost } from "@/features/comment/server";
 import CommentsClient from "./commentsClient";
 
 const Comments = async ({ postId }: { postId: number }) => {

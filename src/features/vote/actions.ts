@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import {
   commentTable,
@@ -9,6 +9,7 @@ import {
   userTable,
   voteTable,
 } from "../../../drizzle/schema";
+import invariant from "tiny-invariant";
 
 export async function voteOnPostOrComment({
   postId,
@@ -21,6 +22,17 @@ export async function voteOnPostOrComment({
   authorId: string;
   score: 1 | 0 | -1;
 }) {
+  invariant(
+    postId === null || !isNaN(postId),
+    "Expected postId to be null or number",
+  );
+  invariant(
+    commentId === null || !isNaN(commentId),
+    "Expected commentId to be null or number",
+  );
+  invariant(typeof authorId === "string", "Expected authorId to be a string");
+  invariant(score === 1 || score === 0 || score === -1);
+
   const user = await getCurrentUserOrThrow();
 
   const existingVote = await db.query.voteTable.findFirst({

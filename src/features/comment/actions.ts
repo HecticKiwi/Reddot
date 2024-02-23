@@ -1,11 +1,14 @@
 "use server";
 
-import { getCommentsForPost } from "@/features/comment/utils";
+import { getCommentsForPost } from "@/features/comment/server";
 import { db } from "@/lib/drizzle";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import { commentTable, voteTable } from "../../../drizzle/schema";
+import invariant from "tiny-invariant";
 
 export async function getCommentsForPostAction({ postId }: { postId: number }) {
+  invariant(!isNaN(postId), "Expected postId to be a number");
+
   return await getCommentsForPost({ postId });
 }
 
@@ -18,13 +21,17 @@ export async function commentOnPost({
   parentCommentId?: number;
   content: string;
 }) {
-  const profile = await getCurrentUserOrThrow();
+  invariant(!isNaN(postId), "Expected postId to be a number");
+  invariant(!isNaN(postId), "Expected parentCommentId to be a number");
+  invariant(typeof content === "string", "Expected content to be a string");
+
+  const user = await getCurrentUserOrThrow();
 
   const comment = await db.transaction(async (tx) => {
     const [comment] = await tx
       .insert(commentTable)
       .values({
-        authorName: profile.username,
+        authorName: user.username,
         postId: postId,
         parentCommentId,
         score: 1,
@@ -33,7 +40,7 @@ export async function commentOnPost({
       .returning();
 
     const vote = await tx.insert(voteTable).values({
-      userId: profile.id,
+      userId: user.id,
       commentId: comment.id,
       value: 1,
     });

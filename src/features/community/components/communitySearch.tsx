@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useSearchCommunity } from "@/features/community/hooks/useSearchCommunity";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUserOrThrow } from "@/features/user/server";
 import { useDebounce } from "@uidotdev/usehooks";
 import { ChevronDown, Home, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";

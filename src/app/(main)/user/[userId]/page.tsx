@@ -1,7 +1,7 @@
 import { getPosts } from "@/features/post/actions";
 import SortTabs from "@/features/post/components/sortTabs";
 import UserCard from "@/features/user/components/userCard";
-import { getUser } from "@/features/user/utils";
+import { getUser } from "@/features/user/server";
 import { redirect } from "next/navigation";
 import Posts, { OrderBy } from "../../../../features/post/components/posts";
 

@@ -79,7 +79,7 @@ const CommunityForm = ({ community }: { community?: Community | null }) => {
         communityName = values.name;
 
         await updateCommunity({
-          communityId: community.name,
+          communityName: community.name,
           data,
         });
 

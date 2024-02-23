@@ -1,8 +1,5 @@
-import {
-  joinOrLeaveCommunity,
-  updateCommunity,
-} from "@/features/community/actions";
 import { toast } from "@/components/ui/use-toast";
+import { joinOrLeaveCommunity } from "@/features/community/actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useJoinOrLeaveCommunity = ({

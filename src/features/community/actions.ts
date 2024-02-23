@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/drizzle";
-import { getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUser, getCurrentUserOrThrow } from "@/features/user/server";
 import { communityDto } from "@/features/community/schema";
 import { and, eq, gt, ilike } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -10,8 +10,11 @@ import {
   communityTable,
   communityToUser,
 } from "../../../drizzle/schema";
+import invariant from "tiny-invariant";
 
 export async function isCommunityNameAvailable(name: string) {
+  invariant(typeof name === "string", "Expected name to be a string");
+
   const community = await db.query.communityTable.findFirst({
     where: eq(communityTable.name, name),
   });
@@ -20,7 +23,9 @@ export async function isCommunityNameAvailable(name: string) {
 }
 
 export async function createCommunity(data: communityDto) {
-  const profile = await getCurrentUserOrThrow();
+  invariant(data, "Expected data");
+
+  const user = await getCurrentUserOrThrow();
 
   const community = await db.transaction(async (tx) => {
     const [community] = await tx
@@ -32,12 +37,12 @@ export async function createCommunity(data: communityDto) {
 
     await tx.insert(communityMods).values({
       communityName: data.name,
-      userId: profile.id,
+      userId: user.id,
     });
 
     await tx.insert(communityToUser).values({
       communityName: data.name,
-      userId: profile.id,
+      userId: user.id,
     });
 
     return community;
@@ -47,6 +52,8 @@ export async function createCommunity(data: communityDto) {
 }
 
 export async function searchCommunitiesByName(name: string) {
+  invariant(typeof name === "string", "Expected name to be a string");
+
   if (!name) {
     return [];
   }
@@ -57,16 +64,28 @@ export async function searchCommunitiesByName(name: string) {
 }
 
 export async function updateCommunity({
-  communityId,
+  communityName,
   data,
 }: {
-  communityId: string;
+  communityName: string;
   data: Partial<communityDto>;
 }) {
+  invariant(
+    typeof communityName === "string",
+    "Expected communityName to be a string",
+  );
+  invariant(data, "Expected data");
+
+  const user = await getCurrentUser();
+  const isMod = user?.communitiesAsModerator.some(
+    (community) => community.community.name === communityName,
+  );
+  invariant(isMod, "The user is not a mod of this community");
+
   const community = await db
     .update(communityTable)
     .set(data)
-    .where(eq(communityTable.name, communityId));
+    .where(eq(communityTable.name, communityName));
 
   return community;
 }
@@ -76,11 +95,16 @@ export async function joinOrLeaveCommunity({
 }: {
   communityName: string;
 }) {
-  const profile = await getCurrentUserOrThrow();
+  invariant(
+    typeof communityName === "string",
+    "Expected communityName to be a string",
+  );
+
+  const user = await getCurrentUserOrThrow();
 
   const existingMembership = await db.query.communityToUser.findFirst({
     where: and(
-      eq(communityToUser.userId, profile.id),
+      eq(communityToUser.userId, user.id),
       eq(communityToUser.communityName, communityName),
     ),
   });
@@ -90,13 +114,13 @@ export async function joinOrLeaveCommunity({
       .delete(communityToUser)
       .where(
         and(
-          eq(communityToUser.userId, profile.id),
+          eq(communityToUser.userId, user.id),
           eq(communityToUser.communityName, communityName),
         ),
       );
   } else {
     await db.insert(communityToUser).values({
-      userId: profile.id,
+      userId: user.id,
       communityName: communityName,
     });
   }

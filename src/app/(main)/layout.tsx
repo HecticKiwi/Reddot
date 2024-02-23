@@ -1,6 +1,6 @@
 import Header from "@/components/header/header";
 import Setup from "@/components/setup";
-import { getCurrentUser, getCurrentUserOrThrow } from "@/features/user/utils";
+import { getCurrentUser, getCurrentUserOrThrow } from "@/features/user/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
