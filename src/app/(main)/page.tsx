@@ -38,7 +38,7 @@ const MainPage = async ({
             <Posts
               user={user}
               type="user"
-              id={null}
+              name={null}
               initialPosts={initialPosts}
               orderBy={orderBy}
             />

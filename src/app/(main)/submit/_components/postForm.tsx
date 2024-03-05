@@ -116,7 +116,7 @@ const PostForm = ({
                             content: field.value,
                             onChange: field.onChange,
                           }}
-                          limit={200}
+                          limit={500}
                         />
                       </div>
                     </FormControl>

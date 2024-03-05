@@ -21,7 +21,7 @@ export default async function PostPage({
 
   return (
     <div className="mx-auto my-8 flex max-w-screen-lg gap-6 p-4">
-      <div className="flex-grow">
+      <div className="grow">
         <PostCard
           profile={profile}
           postId={Number(postId)}
@@ -38,7 +38,7 @@ export default async function PostPage({
       <CommunitySidebar
         communityName={post.community.name}
         inPost
-        className="hidden md:block"
+        className="hidden shrink-0 md:block"
       />
     </div>
   );

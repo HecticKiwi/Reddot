@@ -86,7 +86,7 @@ export default async function CommunityPage({
           <Posts
             user={user}
             type="community"
-            id={params.communityId}
+            name={params.communityId}
             initialPosts={initialPosts}
             orderBy={orderBy}
           />

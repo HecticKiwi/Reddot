@@ -32,7 +32,7 @@ const MainPage = async ({
             <Posts
               user={profile}
               type="community"
-              id={null}
+              name={null}
               initialPosts={initialPosts}
               orderBy={orderBy}
               className="flex-grow"

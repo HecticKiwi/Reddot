@@ -7,7 +7,7 @@ import MenuBar from "./menuBar";
 import { ConfigOptions, createEditorConfig } from "./useTipTap";
 
 export default function TipTap({
-  editor,
+  editor: editorOrConfig,
   limit = 1000,
   className,
 }: {
@@ -15,21 +15,25 @@ export default function TipTap({
   limit?: number;
   className?: string;
 }) {
-  const a =
-    // eslint-disable-next-line
-    editor instanceof Editor ? editor : useEditor(createEditorConfig(editor));
+  const editor =
+    editorOrConfig instanceof Editor
+      ? editorOrConfig
+      : // eslint-disable-next-line
+        useEditor(createEditorConfig(editorOrConfig));
 
-  if (!a) {
+  if (!editor) {
     return null;
   }
 
   return (
     <div className={cn("max-w-full", className)}>
-      {a.isEditable && <MenuBar editor={a} />}
+      {editor.isEditable && <MenuBar editor={editor} />}
 
-      <EditorContent editor={a} />
+      <EditorContent editor={editor} />
 
-      {a.isEditable && <CharacterCountIndicator editor={a} limit={limit} />}
+      {editor.isEditable && (
+        <CharacterCountIndicator editor={editor} limit={limit} />
+      )}
     </div>
   );
 }

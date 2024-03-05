@@ -1,12 +1,12 @@
 "use server";
 
-import { db } from "@/lib/drizzle";
-import { getCurrentUserOrThrow } from "@/features/user/server";
 import { postSchema, postSchemaType } from "@/features/post/schema";
-import { postTable, voteTable } from "../../../drizzle/schema";
+import { getCurrentUserOrThrow } from "@/features/user/server";
+import { db } from "@/lib/drizzle";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import invariant from "tiny-invariant";
+import { postTable, voteTable } from "../../../drizzle/schema";
 
 export type Score = 1 | 0 | -1;
 

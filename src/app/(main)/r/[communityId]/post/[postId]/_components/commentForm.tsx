@@ -21,7 +21,7 @@ import { produce } from "immer";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const limit = 200;
+const limit = 500;
 
 const CommentForm = ({
   postId,

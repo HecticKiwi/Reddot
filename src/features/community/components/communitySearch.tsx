@@ -79,7 +79,7 @@ const CommunitySearch = ({
                   alt={`${selectedCommunity.name} Image`}
                   className="mr-2 h-4 w-4"
                 />
-                {selectedCommunity.name}
+                <span className="truncate">{selectedCommunity.name}</span>
               </>
             )}
             {!selectedCommunity && <>Search</>}
@@ -120,7 +120,7 @@ const CommunitySearch = ({
                         alt={`${community.name} Image`}
                         className="mr-2 h-4 w-4"
                       />
-                      {community.name}
+                      <span className="truncate">{community.name}</span>
                     </CommandItem>
                   ))}
                 </CommandGroup>
@@ -143,7 +143,7 @@ const CommunitySearch = ({
                             alt={`${community.name} Image`}
                             className="mr-2 h-4 w-4"
                           />
-                          {community.name}
+                          <span className="truncate">{community.name}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -161,7 +161,7 @@ const CommunitySearch = ({
                             alt={`${community.name} Image`}
                             className="mr-2 h-4 w-4"
                           />
-                          {community.name}
+                          <span className="truncate">{community.name}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>

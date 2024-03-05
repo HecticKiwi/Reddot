@@ -25,7 +25,7 @@ const UserIdPage = async ({
 
   const initialPosts = await getPosts({
     type: "user",
-    name: null,
+    name: params.userId,
     orderBy,
   });
 
@@ -42,7 +42,7 @@ const UserIdPage = async ({
               type="user"
               initialPosts={initialPosts}
               orderBy={orderBy}
-              id={params.userId}
+              name={params.userId}
             />
           </div>
           <UserCard profile={profile} className="hidden md:block" />

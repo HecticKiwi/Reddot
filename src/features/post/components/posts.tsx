@@ -2,28 +2,27 @@
 
 import { getPosts } from "@/features/post/actions";
 import { useGetPosts } from "@/features/post/hooks/useGetPosts";
+import { getUser } from "@/features/user/server";
 import { cn } from "@/lib/utils";
-import { getCurrentUserOrThrow, getUser } from "@/features/user/server";
 import { Ghost, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { Fragment, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import PostCard from "./postCard";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export type OrderBy = "new" | "top";
 
 const Posts = ({
   user,
   type,
-  id,
+  name,
   initialPosts,
   orderBy,
   className,
 }: {
   user: Awaited<ReturnType<typeof getUser>>;
   type: "user" | "community";
-  id: string | null;
+  name: string | null;
   initialPosts?: Awaited<ReturnType<typeof getPosts>>;
   orderBy: OrderBy;
   className?: string;
@@ -33,7 +32,7 @@ const Posts = ({
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetPosts({
       type,
-      id,
+      name,
       orderBy,
       initialPosts: orderBy === "new" ? initialPosts : undefined,
     });
@@ -64,7 +63,7 @@ const Posts = ({
             </div>
           </>
         )}
-        {type === "user" && id === null && (
+        {type === "user" && name === null && (
           <>
             <h2 className="mt-4 text-2xl font-semibold">
               Nothing in your home feed.
@@ -78,7 +77,7 @@ const Posts = ({
             </div>
           </>
         )}
-        {type === "user" && id && (
+        {type === "user" && name && (
           <>
             <h2 className="mt-4 text-2xl font-semibold">
               This user hasn&apos;t posted anything.
