@@ -11,8 +11,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.485.0",
-    "@aws-sdk/s3-presigned-post": "^3.485.0",
+    "@aws-sdk/client-s3": "^3.529.0",
+    "@aws-sdk/s3-presigned-post": "^3.529.0",
     "@hookform/resolvers": "^3.3.2",
     "@lucia-auth/adapter-drizzle": "^1.0.1",
     "@radix-ui/react-accordion": "^1.1.2",
